@@ -1,7 +1,7 @@
 use gtk::prelude::*;
 use gtk::{glib, Application, ApplicationWindow, Button};
 
-const APP_ID: &str = "rs.ac.bg.matf.conquiztador";
+const APP_ID: &str = "rs.ac.bg.matf.matfquiztador";
 
 fn main() -> glib::ExitCode {
     // Create a new application
@@ -23,7 +23,7 @@ fn build_ui(app: &Application) {
 
     let window = ApplicationWindow::builder()
         .application(app)
-        .title("Conquiztador")
+        .title("Matfquiztador")
         .child(&button)
         .build();
 
