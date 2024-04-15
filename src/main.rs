@@ -19,18 +19,30 @@ fn main() -> Result<(), eframe::Error> {
 }
 
 struct MyApp {
-    // ovde stoje opcije za igricu
+    right_visible: bool,
 }
 
 impl Default for MyApp {
     // ovo je default state (kada se ucita igrica itd)
     fn default() -> Self {
-        Self
+        Self {
+            right_visible: true,
+        }
     }
 }
 
 impl eframe::App for MyApp {
+
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        if self.right_visible {
+            egui::SidePanel::right("right_panel").show(ctx, |ui| {
+                if ui.button("Play!").clicked() {
+                    self.right_visible = false;
+                }
+                if ui.button("Settings").clicked() {
+                }
+            });
+        }
         egui::CentralPanel::default().show(ctx, |ui| {
             // placeholder za mapu
             ui.image(egui::include_image!("../example.png"));
