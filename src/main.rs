@@ -51,9 +51,9 @@ impl SerbiaMap {
         let mut cities = HashMap::new();
         let mut city_states = HashMap::new();
 
-        cities.insert("Belgrade", City::new("Belgrade", 100.0, 100.0));
-        cities.insert("Novi Sad", City::new("Novi Sad", 200.0, 200.0));
-        cities.insert("Nis", City::new("Nis", 300.0, 150.0));
+        cities.insert("Belgrade", City::new("Belgrade", 200.0, 100.0));
+        cities.insert("Novi Sad", City::new("Novi Sad", 150.0, 50.0));
+        cities.insert("Nis", City::new("Nis", 250.0, 250.0));
 
         for(name, _) in &cities {
             city_states.insert(*name, CityState::Default);
