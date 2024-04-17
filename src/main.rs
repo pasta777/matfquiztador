@@ -78,6 +78,16 @@ impl SerbiaMap {
     fn draw(&mut self, ui: &mut Ui, panel_size: Pos2) {
         let panel_center = Pos2::new(panel_size.x / 2.0, panel_size.y / 2.0);
         let radius = 10.0;
+        for(_name1, city1) in &self.cities {
+            for name2 in &city1.connected_to {
+                let city_position1 = Self::normalize(panel_center, city1.position);
+                let city_position2 = Self::normalize(panel_center, self.cities[name2].position);
+                ui.painter().line_segment(
+                    [city_position1, city_position2],
+                    Stroke::new(1.0, Color32::from_rgb(50, 100, 50))
+                );
+            }
+        }
         for (name, city) in &mut self.cities {
             let state = *self.city_states.get(name).unwrap_or(&CityState::Default);
             let city_position = Self::normalize(panel_center, city.position);
@@ -103,18 +113,7 @@ impl SerbiaMap {
             };
             ui.painter().circle_stroke(city_position, radius, Stroke::new(1.0, color));
             ui.painter()
-                .text(city_position, egui::Align2::CENTER_CENTER, city.name, FontId::monospace(16.0), color);
-        }
-
-        for(_name1, city1) in &self.cities {
-            for name2 in &city1.connected_to {
-                let city_position1 = Self::normalize(panel_center, city1.position);
-                let city_position2 = Self::normalize(panel_center, self.cities[name2].position);
-                ui.painter().line_segment(
-                    [city_position1, city_position2],
-                    Stroke::new(1.0, Color32::from_rgb(100, 200, 100))
-                );
-            }
+                .text(Pos2::new(city_position.x, city_position.y - 20.0), egui::Align2::CENTER_CENTER, city.name, FontId::monospace(12.0), color);
         }
     }
 }
