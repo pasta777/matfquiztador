@@ -23,10 +23,11 @@ fn main() -> Result<(), eframe::Error> {
         }),
     )
 }
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 struct City {
     name: &'static str,
     position: Pos2,
+    connected_to: Vec<&'static str>
 }
 #[derive(Clone, Copy, Eq, PartialEq, Debug)]
 enum CityState {
@@ -35,10 +36,11 @@ enum CityState {
     Clicked,
 }
 impl City {
-    fn new(name: &'static str, x: f32, y: f32) -> Self {
+    fn new(name: &'static str, x: f32, y: f32, connected_to: Vec<&'static str>) -> Self {
         City {
             name,
-            position: Pos2::new(x,y)
+            position: Pos2::new(x,y),
+            connected_to,
         }
     }
 }
@@ -53,10 +55,17 @@ impl SerbiaMap {
     fn new() -> Self {
         let mut cities = HashMap::new();
         let mut city_states = HashMap::new();
-
-        cities.insert("Belgrade", City::new("Belgrade", 0.0, 25.0));
-        cities.insert("Novi Sad", City::new("Novi Sad", -50.0, 50.0));
-        cities.insert("Nis", City::new("Nis", 25.0, -75.0));
+        // HACK
+        // (ovo je privremeno resenje za connected_to vektor)
+        let mut for_belgrade = Vec::new();
+        let mut from_belgrade = Vec::new();
+        for_belgrade.push("Belgrade");
+        from_belgrade.push("Novi Sad");
+        from_belgrade.push("Nis");
+        // ovde je kraj tome
+        cities.insert("Belgrade", City::new("Belgrade", 0.0, 25.0, from_belgrade.clone()));
+        cities.insert("Novi Sad", City::new("Novi Sad", -50.0, 50.0, for_belgrade.clone()));
+        cities.insert("Nis", City::new("Nis", 25.0, -75.0, for_belgrade.clone()));
 
         for(name, _) in &cities {
             city_states.insert(*name, CityState::Default);
@@ -86,7 +95,6 @@ impl SerbiaMap {
                 (_, _, true) => CityState::Clicked, // Change to clicked if clicked
                 _ => CityState::Default, // Default state otherwise
             };
-
             self.city_states.insert(*name, new_state);
             let color = match new_state {
                 CityState::Clicked => Color32::from_rgb(200, 200, 100),
@@ -98,16 +106,14 @@ impl SerbiaMap {
                 .text(city_position, egui::Align2::CENTER_CENTER, city.name, FontId::monospace(16.0), color);
         }
 
-        for(name1, city1) in &self.cities {
-            let city_position1 = Self::normalize(panel_center, city1.position);
-            for (name2, city2) in &self.cities {
-                if name1 != name2 {
-                    let city_position2 = Self::normalize(panel_center, city2.position);
-                    ui.painter().line_segment(
-                        [city_position1, city_position2],
-                        Stroke::new(1.0, Color32::from_rgb(100, 200, 100))
-                    );
-                }
+        for(_name1, city1) in &self.cities {
+            for name2 in &city1.connected_to {
+                let city_position1 = Self::normalize(panel_center, city1.position);
+                let city_position2 = Self::normalize(panel_center, self.cities[name2].position);
+                ui.painter().line_segment(
+                    [city_position1, city_position2],
+                    Stroke::new(1.0, Color32::from_rgb(100, 200, 100))
+                );
             }
         }
     }
