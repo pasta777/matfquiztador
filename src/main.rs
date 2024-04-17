@@ -47,13 +47,16 @@ struct SerbiaMap {
     city_states: HashMap<&'static str, CityState>,
 }
 impl SerbiaMap {
+    fn normalize(panel_center: Pos2, city_position: Pos2) -> Pos2 {
+        Pos2::new(panel_center.x + city_position.x, panel_center.y - city_position.y)
+    }
     fn new() -> Self {
         let mut cities = HashMap::new();
         let mut city_states = HashMap::new();
 
-        cities.insert("Belgrade", City::new("Belgrade", 200.0, 100.0));
-        cities.insert("Novi Sad", City::new("Novi Sad", 150.0, 50.0));
-        cities.insert("Nis", City::new("Nis", 250.0, 250.0));
+        cities.insert("Belgrade", City::new("Belgrade", 0.0, 25.0));
+        cities.insert("Novi Sad", City::new("Novi Sad", -50.0, 50.0));
+        cities.insert("Nis", City::new("Nis", 25.0, -75.0));
 
         for(name, _) in &cities {
             city_states.insert(*name, CityState::Default);
@@ -63,11 +66,13 @@ impl SerbiaMap {
             city_states
         }
     }
-    fn draw(&mut self, ui: &mut Ui) {
+    fn draw(&mut self, ui: &mut Ui, panel_size: Pos2) {
+        let panel_center = Pos2::new(panel_size.x / 2.0, panel_size.y / 2.0);
         let radius = 10.0;
         for (name, city) in &mut self.cities {
             let state = *self.city_states.get(name).unwrap_or(&CityState::Default);
-            let node_rect = Rect::from_center_size(city.position, Vec2::from([radius * 2.0; 2]));
+            let city_position = Self::normalize(panel_center, city.position);
+            let node_rect = Rect::from_center_size(city_position, Vec2::from([radius * 2.0; 2]));
             let is_hovered = ui
                 .interact(node_rect, egui::Id::new(*name), Sense::hover())
                 .hovered();
@@ -88,16 +93,18 @@ impl SerbiaMap {
                 CityState::Hovered => Color32::from_rgb(200, 100, 100),
                 _ => Color32::from_rgb(100, 200, 100)
             };
-            ui.painter().circle_stroke(city.position, radius, Stroke::new(1.0, color));
+            ui.painter().circle_stroke(city_position, radius, Stroke::new(1.0, color));
             ui.painter()
-                .text(city.position, egui::Align2::CENTER_CENTER, city.name, FontId::monospace(16.0), color);
+                .text(city_position, egui::Align2::CENTER_CENTER, city.name, FontId::monospace(16.0), color);
         }
 
         for(name1, city1) in &self.cities {
+            let city_position1 = Self::normalize(panel_center, city1.position);
             for (name2, city2) in &self.cities {
                 if name1 != name2 {
+                    let city_position2 = Self::normalize(panel_center, city2.position);
                     ui.painter().line_segment(
-                        [city1.position, city2.position],
+                        [city_position1, city_position2],
                         Stroke::new(1.0, Color32::from_rgb(100, 200, 100))
                     );
                 }
@@ -123,7 +130,8 @@ impl Default for MyApp {
 impl eframe::App for MyApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui|{
-            self.serbia_map.draw(ui);
+            let panel_size = ui.available_size();
+            self.serbia_map.draw(ui, Pos2::new(panel_size.x, panel_size.y));
         });
         if self.right_visible {
             egui::SidePanel::right("right_panel").show(ctx, |ui| {
