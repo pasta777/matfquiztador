@@ -57,7 +57,7 @@ impl SerbiaMap {
         let mut city_states = HashMap::new();
         // HACK
         // (ovo je privremeno resenje za connected_to vektor)
-        let mut for_belgrade = Vec::new();
+        let mut for_belgrades = Vec::new();
         let mut from_belgrade = Vec::new();
         for_belgrade.push("Belgrade");
         from_belgrade.push("Novi Sad");
