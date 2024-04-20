@@ -57,17 +57,17 @@ Ukoliko su je i u tom slučaju pobednik neodređen, svi igrači igraju dodatnu r
 # TO-DO LIST
 
 
-* Implementirati sve gradove i grane povezanosti između njih
+* Implementirati sve gradove i grane povezanosti između njih 
 * Implementirati etapu postavljanja glavnih gradova na početku
-* Implementirati grafički prikaz slobodnih, osvojenih kao i teritorija na kojima je glavni grad.
+* Implementirati grafički prikaz slobodnih, osvojenih kao i teritorija na kojima je glavni grad. (Stepan)
 * Implementirati etapu biranja slobodnih teritorija
 * Implementirati etapu ratovanja
-* Implementirati grafički prikaz napada nekog igrača na neku teritoriju, recimo postavljanja barjaka tog igrača na tu teritoriju kao deklaraciju napada.
+* Implementirati grafički prikaz napada nekog igrača na neku teritoriju, recimo postavljanja barjaka tog igrača na tu teritoriju kao deklaraciju napada. (Stepan)
 * Implementirati odabir broja poteza u fazi ratovanja na početku, odnosno broj poteza posle kojih će igra po difoltu biti gotova
 * Implementirati sistem, bilo eksterni ili interni, kojim će se pamtiti broj uspešnih odbrana teritorije nekog igrača.
 * Implementirati sudden death rundu u slučaju nerešene partije po svim parametrima
 * Implementirati bazu sa pitanjima, tako da se pitanja u bilo kom trenutku ne ponavljaju u toku igre. (Miloš)
-* Srediti prozor, i sam izgled igre.
-* Odlučiti se dodavanje minimalističkog AI igrača ili fokusiranje na igru za više igrača i implementirati odabrano. 
+* Srediti prozor, i sam izgled igre. (Stepan)
+* Odlučiti se dodavanje minimalističkog AI igrača ili fokusiranje na igru za više igrača i implementirati odabrano. (Stepan)
 
 Ukoliko želite da preuzmete nešto sa ove liste, upišite vaše ime npr. (Stojan) pored stavke kojom želite vi da se bavite. Nakon finaliziranje te stavke stavite #DONE pored stavke ukoliko ste zadovoljni obradom.
