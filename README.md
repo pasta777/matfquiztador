@@ -57,7 +57,7 @@ Ukoliko su je i u tom slučaju pobednik neodređen, svi igrači igraju dodatnu r
 # TO-DO LIST
 
 
-* Implementirati sve gradove i grane povezanosti između njih 
+* Implementirati sve gradove i grane povezanosti između njih (Mihajlo)
 * Implementirati etapu postavljanja glavnih gradova na početku
 * Implementirati grafički prikaz slobodnih, osvojenih kao i teritorija na kojima je glavni grad. (Stepan)
 * Implementirati etapu biranja slobodnih teritorija
