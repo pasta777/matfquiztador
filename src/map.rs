@@ -108,7 +108,7 @@ impl SerbiaMap {
         from_subotica.push("Novi Sad");
         from_subotica.push("Kikinda");
 
-        from_kikinda.push("Zrenjenin");
+        from_kikinda.push("Zrenjenin");//gas
         from_kikinda.push("Subotica");
 
         from_cacak.push("Kraljevo");
