@@ -38,17 +38,106 @@ impl SerbiaMap {
     pub fn new() -> Self {
         let mut cities = HashMap::new();
         let mut city_states = HashMap::new();
-        // HACK
-        // (ovo je privremeno resenje za connected_to vektor)
-        let mut for_belgrade = Vec::new();
-        let mut from_belgrade = Vec::new();
-        for_belgrade.push("Belgrade");
-        from_belgrade.push("Novi Sad");
-        from_belgrade.push("Nis");
-        // ovde je kraj tome
+
+        let mut from_belgrade = Vec::new(); //done
+        let mut from_pancevo = Vec::new(); //done
+        let mut from_sabac = Vec::new(); //done
+        let mut from_valjevo = Vec::new(); //done
+        let mut from_sremskamitrovica = Vec::new(); //done
+        let mut from_smederevo = Vec::new(); //done
+        let mut from_zrenjenin = Vec::new(); //done
+        let mut from_arandjelovac = Vec::new(); //done
+        let mut from_novisad = Vec::new(); //done
+        let mut from_sombor = Vec::new(); //done
+        let mut from_subotica = Vec::new(); //done
+        let mut from_kikinda = Vec::new(); //done
+        let mut from_cacak = Vec::new(); //done
+        let mut from_kraljevo = Vec::new();
+        from_belgrade.push("Pancevo"); // Beograd, Smederevo, Zrenjenin
+        from_belgrade.push("Sabac"); // Beograd, Sremska Mitrovica, Valjevo
+        from_belgrade.push("Valjevo"); // Beograd, Cacak, Sabac, Arandjelovac
+        from_belgrade.push("Sremska Mitrovica"); // Beograd, Novi Sad,Sabac, Sombor
+        from_belgrade.push("Smederevo"); // Beograd, Pozarevac, Arandjelovac, Pancevo Velika Plana
+        from_belgrade.push("Zrenjenin"); // Beograd, Novi Sad, Pancevo, Kikinda
+        from_belgrade.push("Arandjelovac"); // Valjevo, Beograd, Cacak, Kragujevac, Velika Plana
+
+        from_pancevo.push("Beograd");
+        from_pancevo.push("Smederevo");
+        from_pancevo.push("Zrenjenin");
+
+        from_sabac.push("Beograd");
+        from_sabac.push("Sremska Mitrovica");
+        from_sabac.push("Valjevo");
+
+        from_valjevo.push("Beograd");
+        from_valjevo.push("Cacak");
+        from_valjevo.push("Sabac");
+        from_valjevo.push("Arandjelovac");
+
+        from_sremskamitrovica.push("Beograd");
+        from_sremskamitrovica.push("Novi Sad");
+        from_sremskamitrovica.push("Sabac");
+
+        from_smederevo.push("Beograd");
+        //from_smederevo.push("Pozarevac");
+        from_smederevo.push("Arandjelovac");
+        from_smederevo.push("Pancevo");
+        //from_smederevo.push("Velika Plana");
+
+        from_zrenjenin.push("Beograd");
+        from_zrenjenin.push("Novi Sad");
+        from_zrenjenin.push("Pancevo");
+        from_zrenjenin.push("Kikinda");
+
+        from_arandjelovac.push("Beograd");
+        from_arandjelovac.push("Valjevo");
+        from_arandjelovac.push("Cacak");
+        //from_arandjelovac.push("Kragujevac");
+        //from_arandjelovac.push("Velika Plana");
+
+
+        from_novisad.push("Sremska Mitrovica"); //-
+        from_novisad.push("Zrenjenin"); //-
+        from_novisad.push("Sombor"); // Novi Sad, Subotica
+        from_novisad.push("Subotica"); //Sombor, Novi Sad, Kikinda
+
+        from_sombor.push("Novi Sad");
+        from_sombor.push("Subotica");
+
+        from_subotica.push("Sombor");
+        from_subotica.push("Novi Sad");
+        from_subotica.push("Kikinda");
+
+        from_kikinda.push("Zrenjenin");
+        from_kikinda.push("Subotica");
+
+        from_cacak.push("Kraljevo");
+        from_cacak.push("Arandjelovac");
+        //from_cacak.push("Kragujevac");
+        from_cacak.push("Valjevo");
+        //from_cacak.push("Uzice");
+
+        from_kraljevo.push("Cacak");
+        //from_kraljevo.push("Kragujevac");
+        //from_kraljevo.push("Jagodina");
+        //from_kraljevo.push("Krusevac");
+
+
         cities.insert("Belgrade", City::new("Belgrade", 0.0, 25.0, from_belgrade.clone()));
-        cities.insert("Novi Sad", City::new("Novi Sad", -50.0, 50.0, for_belgrade.clone()));
-        cities.insert("Nis", City::new("Nis", 25.0, -75.0, for_belgrade.clone()));
+        cities.insert("Pancevo", City::new("Pancevo", 0.0, 25.0, from_pancevo.clone()));
+        cities.insert("Sabac", City::new("Sabac", 0.0, 25.0, from_sabac.clone()));
+        cities.insert("Valjevo", City::new("Valjevo", 0.0, 25.0, from_valjevo.clone()));
+        cities.insert("Sremska Mitrovica",City::new("Sremska Mitrovica", -20.0,25.0,from_sremskamitrovica.clone()));
+        cities.insert("Smederevo",City::new("Smederevo", -20.0,25.0,from_smederevo.clone()));
+        cities.insert("Arandjelovac",City::new("Arandjelovac", -20.0,25.0,from_arandjelovac.clone()));
+        cities.insert("Novi Sad",City::new("Novi Sad", 0.0, 25.0, from_novisad.clone()));
+        cities.insert("Sombor",City::new("Sombor", 0.0, 25.0, from_sombor.clone()));
+        cities.insert("Subotica",City::new("Subotica", 0.0, 25.0, from_subotica.clone()));
+        cities.insert("Kikinda",City::new("Kikinda", 0.0, 25.0, from_kikinda.clone()));
+        cities.insert("Cacak",City::new("Cacak", 0.0, 25.0, from_cacak.clone()));
+        cities.insert("Kraljevo",City::new("Kraljevo", 0.0, 25.0, from_kraljevo.clone()));
+
+
 
         for (name, _) in &cities {
             city_states.insert(*name, CityState::Default);
