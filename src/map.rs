@@ -61,35 +61,35 @@ impl SerbiaMap {
         from_belgrade.push("Zrenjenin"); // Beograd, Novi Sad, Pancevo, Kikinda
         from_belgrade.push("Arandjelovac"); // Valjevo, Beograd, Cacak, Kragujevac, Velika Plana
 
-        from_pancevo.push("Beograd");
+        from_pancevo.push("Belgrade");
         from_pancevo.push("Smederevo");
         from_pancevo.push("Zrenjenin");
 
-        from_sabac.push("Beograd");
+        from_sabac.push("Belgrade");
         from_sabac.push("Sremska Mitrovica");
         from_sabac.push("Valjevo");
 
-        from_valjevo.push("Beograd");
+        from_valjevo.push("Belgrade");
         from_valjevo.push("Cacak");
         from_valjevo.push("Sabac");
         from_valjevo.push("Arandjelovac");
 
-        from_sremskamitrovica.push("Beograd");
+        from_sremskamitrovica.push("Belgrade");
         from_sremskamitrovica.push("Novi Sad");
         from_sremskamitrovica.push("Sabac");
 
-        from_smederevo.push("Beograd");
+        from_smederevo.push("Belgrade");
         //from_smederevo.push("Pozarevac");
         from_smederevo.push("Arandjelovac");
         from_smederevo.push("Pancevo");
         //from_smederevo.push("Velika Plana");
 
-        from_zrenjenin.push("Beograd");
+        from_zrenjenin.push("Belgrade");
         from_zrenjenin.push("Novi Sad");
         from_zrenjenin.push("Pancevo");
         from_zrenjenin.push("Kikinda");
 
-        from_arandjelovac.push("Beograd");
+        from_arandjelovac.push("Belgrade");
         from_arandjelovac.push("Valjevo");
         from_arandjelovac.push("Cacak");
         //from_arandjelovac.push("Kragujevac");
@@ -136,7 +136,7 @@ impl SerbiaMap {
         cities.insert("Kikinda",City::new("Kikinda", 0.0, 25.0, from_kikinda.clone()));
         cities.insert("Cacak",City::new("Cacak", 0.0, 25.0, from_cacak.clone()));
         cities.insert("Kraljevo",City::new("Kraljevo", 0.0, 25.0, from_kraljevo.clone()));
-
+        cities.insert("Zrenjenin",City::new("Zrenjenin", 0.0, 25.0, from_zrenjenin.clone()));
 
 
         for (name, _) in &cities {
