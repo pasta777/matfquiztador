@@ -64,7 +64,7 @@ impl eframe::App for MyApp {
                     if ui.button("Settings").clicked() {
                     }
                     if ui.button("Exit").clicked() {
-                        self.show_confirmation_dialog = true;
+                        ui.ctx().send_viewport_cmd(egui::ViewportCommand::Close);
                     }
                 });
             });
