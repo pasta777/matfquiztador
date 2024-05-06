@@ -14,6 +14,8 @@ enum CityState {
     Default,
     Hovered,
     Clicked,
+    Player,
+    Bot,
 }
 
 impl City {
@@ -29,7 +31,10 @@ impl City {
 pub struct SerbiaMap {
     cities: HashMap<&'static str, City>,
     city_states: HashMap<&'static str, CityState>,
+    player: bool,
 }
+
+
 
 impl SerbiaMap {
     fn normalize(panel_size: Pos2, city_position: Pos2) -> Pos2 {
@@ -253,6 +258,7 @@ impl SerbiaMap {
         SerbiaMap {
             cities,
             city_states,
+            player: true,
         }
     }
     pub fn draw(&mut self, ui: &mut Ui, panel_size: Pos2) {
@@ -273,6 +279,7 @@ impl SerbiaMap {
                 );
             }
         }
+
         for (name, city) in &self.cities {
             let state = *self.city_states.get(name).unwrap_or(&CityState::Default);
             let city_position = Self::normalize(panel_size, city.position);
@@ -284,18 +291,40 @@ impl SerbiaMap {
                 .interact(node_rect, egui::Id::new(*name), Sense::click())
                 .clicked();
 
+
             let new_state = match (state, is_hovered, is_clicked) {
-                (CityState::Clicked, _, _) => CityState::Clicked, // Keep clicked state if already clicked
+                (CityState::Player, _, _) => CityState::Player, // Keep clicked state if already clicked
+                (CityState::Bot,_,_) => CityState::Bot,
                 (_, true, false) => CityState::Hovered, // Change to hovered if hovered
-                (_, _, true) => CityState::Clicked, // Change to clicked if clicked
+                (_, _, true) => CityState::Clicked, // Change to clicked if clicke
                 _ => CityState::Default, // Default state otherwise
             };
             self.city_states.insert(*name, new_state);
-            let color = match new_state {
-                CityState::Clicked => Color32::from_rgb(200, 200, 100),
+
+
+
+            if self.player {
+
+                if new_state == CityState::Clicked {
+                    self.city_states.insert(*name, CityState::Player);
+                    self.player = false;
+                }
+
+            }else{
+
+                if new_state == CityState::Clicked {
+                    self.city_states.insert(*name, CityState::Bot);
+                    self.player = true;
+                }
+            }
+
+            let mut color = match new_state {
+                CityState::Player => Color32::from_rgb(0, 0, 255),
+                CityState::Bot => Color32::from_rgb(255,0,0),
                 CityState::Hovered => Color32::from_rgb(200, 100, 100),
                 _ => Color32::from_rgb(100, 200, 100)
             };
+
             ui.painter().circle_filled(city_position, radius, color);
             ui.painter()
                 .text(Pos2::new(city_position.x, city_position.y - 20.0), egui::Align2::CENTER_CENTER, city.name, FontId::monospace(12.0), color);
