@@ -31,7 +31,11 @@ impl City {
 pub struct SerbiaMap {
     cities: HashMap<&'static str, City>,
     city_states: HashMap<&'static str, CityState>,
+    is_capital: HashMap<&'static str, bool>,
+    eligible_cities: Vec<&'static str>,
     player: bool,
+    first_turn: bool,
+    pub not_first_click: bool,
 }
 
 
@@ -46,6 +50,7 @@ impl SerbiaMap {
     pub fn new() -> Self {
         let mut cities = HashMap::new();
         let mut city_states = HashMap::new();
+        let mut is_capital = HashMap::new();
 
         let mut from_belgrade = Vec::new(); //done
         let mut from_pancevo = Vec::new(); //done
@@ -254,11 +259,16 @@ impl SerbiaMap {
 
         for (name, _) in &cities {
             city_states.insert(*name, CityState::Default);
+            is_capital.insert(*name, false);
         }
         SerbiaMap {
             cities,
             city_states,
+            is_capital,
+            eligible_cities: Vec::new(),
             player: true,
+            first_turn: true,
+            not_first_click: true,
         }
     }
     pub fn draw(&mut self, ui: &mut Ui, panel_size: Pos2) {
@@ -268,8 +278,14 @@ impl SerbiaMap {
                 let city_position1 = Self::normalize(panel_size, city1.position);
                 let city_position2 = Self::normalize(panel_size, self.cities[name2].position);
                 let color =
-                    if self.city_states[name1] == CityState::Clicked && self.city_states[name2] == CityState::Clicked {
-                        Color32::from_rgb(150, 150, 50)
+                    if self.city_states[name1] == self.city_states[name2] && (self.city_states[name1] != CityState::Default || self.city_states[name1] != CityState::Hovered) {
+                        if self.city_states[name1] == CityState::Player {
+                            Color32::from_rgb(50, 50, 255)
+                        } else if self.city_states[name1] == CityState::Bot {
+                            Color32::from_rgb(255,50,50)
+                        } else {
+                            Color32::from_rgb(50, 100, 50)
+                        }
                     } else {
                         Color32::from_rgb(50, 100, 50)
                     };
@@ -304,23 +320,52 @@ impl SerbiaMap {
 
 
             if self.player {
-
-                if new_state == CityState::Clicked {
-                    self.city_states.insert(*name, CityState::Player);
-                    self.player = false;
+                if self.eligible_cities.is_empty() {
+                    if new_state == CityState::Clicked {
+                        self.city_states.insert(*name, CityState::Player);
+                        self.player = false;
+                        if self.first_turn {
+                            self.is_capital.insert(*name, true);
+                        }
+                        for neighbor in *city.connected_to {
+                            self.eligible_cities.push(neighbor);
+                        }
+                        self.not_first_click = false;
+                    }
+                } else {
+                    if new_state == CityState::Clicked && *self.eligible_cities.iter().find(*name) {
+                        //todo
+                    }
                 }
+                // uslovi: CityState::Clicked, susedi su od CityState::Player
+                // dopustena polja: zuta boja
 
-            }else{
-
-                if new_state == CityState::Clicked {
+            } else { // BOT GRANA
+                if state == CityState::Default {
                     self.city_states.insert(*name, CityState::Bot);
+                    if self.first_turn {
+                        self.is_capital.insert(*name, true);
+                        self.first_turn = false;
+                    }
                     self.player = true;
                 }
             }
 
-            let mut color = match new_state {
-                CityState::Player => Color32::from_rgb(0, 0, 255),
-                CityState::Bot => Color32::from_rgb(255,0,0),
+            let color = match new_state {
+                CityState::Player => {
+                    if self.is_capital[*name] {
+                        Color32::from_rgb(0, 0, 255)
+                    } else {
+                        Color32::from_rgb(50, 50, 255)
+                    }
+                },
+                CityState::Bot => {
+                    if self.is_capital[*name] {
+                        Color32::from_rgb(255,0,0)
+                    } else {
+                        Color32::from_rgb(255,50,50)
+                    }
+                },
                 CityState::Hovered => Color32::from_rgb(200, 100, 100),
                 _ => Color32::from_rgb(100, 200, 100)
             };

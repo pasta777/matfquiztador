@@ -72,6 +72,9 @@ impl eframe::App for MyApp {
         if self.playing {
             egui::CentralPanel::default().show(ctx, |ui|{
                 let panel_size = ui.available_size();
+                if self.serbia_map.not_first_click {
+                    ui.heading("Choose capital city.");
+                }
                 self.serbia_map.draw(ui, Pos2::new(panel_size.x, panel_size.y));
             });
         }
