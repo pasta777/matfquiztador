@@ -58,8 +58,8 @@ Ukoliko su je i u tom slučaju pobednik neodređen, svi igrači igraju dodatnu r
 
 
 * Implementirati sve gradove i grane povezanosti između njih (Mihajlo) DONE
-* Implementirati etapu postavljanja glavnih gradova na početku (Mihajlo)
-* Implementirati grafički prikaz slobodnih, osvojenih kao i teritorija na kojima je glavni grad. (Stepan)
+* Implementirati etapu postavljanja glavnih gradova na početku (Mihajlo) DONE
+* Implementirati grafički prikaz slobodnih, osvojenih kao i teritorija na kojima je glavni grad. (Stepan) DONE
 * Implementirati etapu biranja slobodnih teritorija
 * Implementirati etapu ratovanja
 * Implementirati grafički prikaz napada nekog igrača na neku teritoriju, recimo postavljanja barjaka tog igrača na tu teritoriju kao deklaraciju napada. (Stepan)
