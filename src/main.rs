@@ -70,25 +70,49 @@ impl eframe::App for MyApp {
             });
         }
         if self.playing {
-            egui::CentralPanel::default().show(ctx, |ui|{
-                let panel_size = ui.available_size();
-                if self.serbia_map.not_first_click {
-                    ui.heading("Choose capital city.");
-                }
-                self.serbia_map.draw(ui, Pos2::new(panel_size.x, panel_size.y));
+                egui::CentralPanel::default().show(ctx, |ui| {
+                    let panel_size = ui.available_size();
+                    if self.serbia_map.first_turn {
+                        ui.heading("Choose capital city.");
+                    }
+                    self.serbia_map.draw(ui, Pos2::new(panel_size.x, panel_size.y));
+                });
+            }
+        if self.serbia_map.show_question {
+            egui::CentralPanel::default().show(ctx, |ui| {
+                ui.vertical_centered_justified(|ui| {
+                    for _i in 1..10 {
+                        ui.label("");
+                    }
+                    ui.style_mut().text_styles.insert(
+                        egui::TextStyle::Button,
+                        egui::FontId::new(20.0, eframe::epaint::FontFamily::Proportional),
+                    );
+                    ui.style_mut().text_styles.insert(
+                        egui::TextStyle::Heading,
+                        egui::FontId::new(25.0, eframe::epaint::FontFamily::Proportional),
+                    );
+                    ui.heading("The Question placeholder");
+                    if ui.button("Option 1").clicked() {
+                        self.serbia_map.correct_p = false;
+                        self.serbia_map.show_question = false;
+                    }
+                    if ui.button("Option 2").clicked() {
+                        self.serbia_map.correct_p = true;
+                        self.serbia_map.show_question = false;
+                    }
+                    if ui.button("Option 3").clicked() {
+                        self.serbia_map.correct_p = false;
+                        self.serbia_map.show_question = false;
+                    }
+                    if ui.button("Option 4").clicked() {
+                        self.serbia_map.correct_p = false;
+                        self.serbia_map.show_question = false;
+                    }
+                });
             });
         }
-        // egui::TopBottomPanel::bottom("bottom_panel").show(ctx, |ui| {
-        //     ui.heading("The Question placeholder");
-        //     ui.horizontal(|ui| {
-        //         let _op1 = ui.button("Option 1");
-        //         let _op2 = ui.button("Option 2");
-        //     });
-        //     ui.horizontal(|ui| {
-        //         let _op3 = ui.button("Option 3");
-        //         let _op4 = ui.button("Option 4");
-        //     });
-        // });
+
         if self.show_confirmation_dialog {
             egui::Window::new("Do you want to quit?")
                 .collapsible(false)

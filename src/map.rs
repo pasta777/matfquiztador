@@ -2,6 +2,8 @@ use std::collections::{HashMap, HashSet};
 use eframe::emath::{Pos2, Rect, Vec2};
 use eframe::epaint::{Color32, FontId, Stroke};
 use egui::{Sense, Ui};
+use rand::{Rng};
+
 #[derive(Clone)]
 struct City {
     name: &'static str,
@@ -35,11 +37,10 @@ pub struct SerbiaMap {
     eligible_cities_p: HashSet<&'static str>,
     eligible_cities_b: HashSet<&'static str>,
     player: bool,
-    first_turn: bool,
-    pub not_first_click: bool,
+    pub first_turn: bool,
+    pub show_question: bool,
+    pub correct_p: bool,
 }
-
-
 
 impl SerbiaMap {
     fn normalize(panel_size: Pos2, city_position: Pos2) -> Pos2 {
@@ -282,7 +283,8 @@ impl SerbiaMap {
             eligible_cities_b: HashSet::new(),
             player: true,
             first_turn: true,
-            not_first_click: true,
+            show_question: false,
+            correct_p: false,
         }
     }
     pub fn draw(&mut self, ui: &mut Ui, panel_size: Pos2) {
@@ -320,75 +322,97 @@ impl SerbiaMap {
             let is_clicked = ui
                 .interact(node_rect, egui::Id::new(*name), Sense::click())
                 .clicked();
+            let is_eligible = self.eligible_cities_p.contains(name) || self.eligible_cities_p.is_empty();
 
-
-            let new_state = match (state, is_hovered, is_clicked) {
-                (CityState::Player, _, _) => CityState::Player, // Keep clicked state if already clicked
-                (CityState::Bot, _, _) => CityState::Bot,
-                (_, true, false) => CityState::Hovered, // Change to hovered if hovered
-                (_, _, true) => CityState::Clicked, // Change to clicked if clicked
+            let new_state = match (state, is_hovered, is_clicked, is_eligible) {
+                (CityState::Player, _, _, _) => CityState::Player, // Keep clicked state if already clicked
+                (CityState::Bot, _, _, _) => CityState::Bot,
+                (_, true, false, true) => CityState::Hovered, // Change to hovered if hovered
+                (_, _, true, true) => CityState::Clicked, // Change to clicked if clicked
                 _ => CityState::Default, // Default state otherwise
             };
             self.city_states.insert(*name, new_state);
 
-            if self.player {
-                if self.eligible_cities_p.is_empty() {
-                    if new_state == CityState::Clicked {
-                        self.city_states.insert(*name, CityState::Player);
-                        if self.first_turn {
+            if self.player { // IGRAC
+                if self.eligible_cities_p.is_empty() { // AKO NEMA SLOBODNIH POLJA
+                    if new_state == CityState::Clicked {  // AKO JE KLIKNUTO BILO KOJE POLJE
+                        if self.first_turn { // PRVI POTEZ
+                            self.city_states.insert(*name, CityState::Player);
                             self.is_capital.insert(*name, true);
-                        }
-                        for neighbor in &city.connected_to {
-                            if self.city_states[*neighbor] != CityState::Bot && self.city_states[*neighbor] != CityState::Player {
-                                self.eligible_cities_p.insert(*neighbor);
+                            for neighbor in &city.connected_to {
+                                if self.city_states[*neighbor] != CityState::Bot && self.city_states[*neighbor] != CityState::Player {
+                                    self.eligible_cities_p.insert(*neighbor);
+                                }
                             }
+                        } else { // BILO KOJI POTEZ
+                                self.city_states.insert(*name, CityState::Player);
+                                for neighbor in &city.connected_to {
+                                    if self.city_states[*neighbor] != CityState::Bot && self.city_states[*neighbor] != CityState::Player {
+                                        self.eligible_cities_p.insert(*neighbor);
+                                    }
+                                }
+                                self.eligible_cities_p.remove(*name);
+                                self.eligible_cities_b.remove(*name);
+
                         }
-                        self.not_first_click = false;
                         self.player = false;
                     }
-                } else {
-                    if new_state == CityState::Clicked && self.eligible_cities_p.contains(name) {
-                        self.city_states.insert(*name, CityState::Player);
-                        for neighbor in &city.connected_to {
-                            if self.city_states[*neighbor] != CityState::Bot && self.city_states[*neighbor] != CityState::Player {
-                                self.eligible_cities_p.insert(*neighbor);
+                } else { // AKO IMA SLOBODNIH POLJA
+                    if new_state == CityState::Clicked && self.eligible_cities_p.contains(name) { // AKO JE KLIKNUTO SLOBODNO POLJE
+                        //self.show_question = true;
+                            self.city_states.insert(*name, CityState::Player);
+                            for neighbor in &city.connected_to {
+                                if self.city_states[*neighbor] != CityState::Bot && self.city_states[*neighbor] != CityState::Player {
+                                    self.eligible_cities_p.insert(*neighbor);
+                                }
                             }
-                        }
-                        self.eligible_cities_p.remove(*name);
-                        self.eligible_cities_b.remove(*name);
+                            self.eligible_cities_p.remove(*name);
+                            self.eligible_cities_b.remove(*name);
+
                         self.player = false;
                     }
                 }
                 // uslovi: CityState::Clicked, susedi su od CityState::Player
                 // dopustena polja: zuta boja
             } else { // BOT GRANA
-                if self.eligible_cities_b.is_empty() {
-                    if state == CityState::Default {
-                        self.city_states.insert(*name, CityState::Bot);
-                        if self.first_turn {
+                if self.eligible_cities_b.is_empty() { // AKO NEMA SLOBODNIH POLJA
+                    if state == CityState::Default { // BILO KOJE POLJE
+                        if self.first_turn { // PRVI POTEZ
+                            self.city_states.insert(*name, CityState::Bot);
                             self.is_capital.insert(*name, true);
                             self.first_turn = false;
-                        }
-                        for neighbor in &city.connected_to {
-                            if self.city_states[*neighbor] != CityState::Bot && self.city_states[*neighbor] != CityState::Player {
-                                self.eligible_cities_b.insert(*neighbor);
+                            for neighbor in &city.connected_to {
+                                if self.city_states[*neighbor] != CityState::Bot && self.city_states[*neighbor] != CityState::Player {
+                                    self.eligible_cities_b.insert(*neighbor);
+                                }
                             }
+                        } else {
+                                self.city_states.insert(*name, CityState::Bot);
+                                for neighbor in &city.connected_to {
+                                    if self.city_states[*neighbor] != CityState::Bot && self.city_states[*neighbor] != CityState::Player {
+                                        self.eligible_cities_b.insert(*neighbor);
+                                    }
+                                }
+                                self.eligible_cities_p.remove(*name);
+                                self.eligible_cities_b.remove(*name);
+
                         }
                         self.player = true;
                         //println!("nema {}", self.eligible_cities_b.len());
                     }
-                } else {
-                    if state == CityState::Default && self.eligible_cities_b.contains(name) {
-                        self.city_states.insert(*name, CityState::Bot);
-                        for neighbor in &city.connected_to {
-                            if self.city_states[*neighbor] != CityState::Bot && self.city_states[*neighbor] != CityState::Player {
-                                self.eligible_cities_b.insert(*neighbor);
+                } else { // IMA SLOBODNIH POLJA
+                    if state == CityState::Default && self.eligible_cities_b.contains(name) { // IZABRANO SLOBODNO POLJE
+
+                            self.city_states.insert(*name, CityState::Bot);
+                            for neighbor in &city.connected_to {
+                                if self.city_states[*neighbor] != CityState::Bot && self.city_states[*neighbor] != CityState::Player {
+                                    self.eligible_cities_b.insert(*neighbor);
+                                }
                             }
-                        }
-                        self.eligible_cities_p.remove(*name);
-                        self.eligible_cities_b.remove(*name);
+                            self.eligible_cities_p.remove(*name);
+                            self.eligible_cities_b.remove(*name);
+
                         self.player = true;
-                        //println!("ima {}", self.eligible_cities_b.len());
                     }
                 }
             }
@@ -396,14 +420,14 @@ impl SerbiaMap {
             let color = match new_state {
                 CityState::Player => {
                     if self.is_capital[*name] {
-                        Color32::from_rgb(0, 0, 255)
+                        Color32::from_rgb(0, 0, 200)
                     } else {
                         Color32::from_rgb(50, 50, 255)
                     }
                 },
                 CityState::Bot => {
                     if self.is_capital[*name] {
-                        Color32::from_rgb(255,0,0)
+                        Color32::from_rgb(200,0,0)
                     } else {
                         Color32::from_rgb(255,50,50)
                     }
