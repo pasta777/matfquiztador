@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use eframe::emath::{Pos2, Rect, Vec2};
 use eframe::epaint::{Color32, FontId, Stroke};
 use egui::{Sense, Ui};
@@ -32,7 +32,8 @@ pub struct SerbiaMap {
     cities: HashMap<&'static str, City>,
     city_states: HashMap<&'static str, CityState>,
     is_capital: HashMap<&'static str, bool>,
-    eligible_cities: Vec<&'static str>,
+    eligible_cities_p: HashSet<&'static str>,
+    eligible_cities_b: HashSet<&'static str>,
     player: bool,
     first_turn: bool,
     pub not_first_click: bool,
@@ -83,6 +84,8 @@ impl SerbiaMap {
         let mut from_prizren = Vec::new(); //done
         let mut from_kosovskamitrovica = Vec::new(); //done
         let mut from_gnjilane = Vec::new();
+        let mut from_novipazar = Vec::new();
+
         from_belgrade.push("Pancevo"); // Beograd, Smederevo, Zrenjenin
         from_belgrade.push("Sabac"); // Beograd, Sremska Mitrovica, Valjevo
         from_belgrade.push("Valjevo"); // Beograd, Cacak, Sabac, Arandjelovac
@@ -123,6 +126,7 @@ impl SerbiaMap {
         from_arandjelovac.push("Valjevo");
         from_arandjelovac.push("Cacak");
         from_arandjelovac.push("Kragujevac");
+        from_arandjelovac.push("Smederevo");
         //from_arandjelovac.push("Velika Plana");
 
 
@@ -151,6 +155,7 @@ impl SerbiaMap {
         from_kraljevo.push("Kragujevac");
         from_kraljevo.push("Jagodina");
         from_kraljevo.push("Krusevac");
+        from_kraljevo.push("Novi Pazar");
 
         from_pozarevac.push("Smederevo");
         from_pozarevac.push("Bor");
@@ -179,6 +184,7 @@ impl SerbiaMap {
 
         from_uzice.push("Cacak");
         from_uzice.push("Valjevo");
+        from_uzice.push("Novi Pazar");
 
         from_krusevac.push("Kraljevo");
         from_krusevac.push("Nis");
@@ -189,6 +195,7 @@ impl SerbiaMap {
         from_nis.push("Zajecar");
         from_nis.push("Pirot");
         from_nis.push("Prokuplje");
+        from_nis.push("Leskovac");
 
         from_prokuplje.push("Nis");
         from_prokuplje.push("Leskovac");
@@ -200,6 +207,7 @@ impl SerbiaMap {
         from_leskovac.push("Pirot");
         from_leskovac.push("Nis");
         from_leskovac.push("Vranje");
+        from_leskovac.push("Prokuplje");
 
         from_vranje.push("Leskovac");
         from_vranje.push("Pristina");
@@ -220,9 +228,14 @@ impl SerbiaMap {
 
         from_kosovskamitrovica.push("Pristina");
         from_kosovskamitrovica.push("Pec");
+        from_kosovskamitrovica.push("Novi Pazar");
 
         from_gnjilane.push("Pristina");
         from_gnjilane.push("Vranje");
+
+        from_novipazar.push("Kosovska Mitrovica");
+        from_novipazar.push("Kraljevo");
+        from_novipazar.push("Uzice");
 
         cities.insert("Belgrade", City::new("Belgrade", 0.000, 0.195, from_belgrade.clone()));
         cities.insert("Pancevo", City::new("Pancevo", 0.030, 0.225, from_pancevo.clone()));
@@ -255,7 +268,7 @@ impl SerbiaMap {
         cities.insert("Prizren",City::new("Prizren", 0.010, -0.430, from_prizren.clone()));
         cities.insert("Kosovska Mitrovica",City::new("Kosovska Mitrovica", 0.050, -0.230, from_kosovskamitrovica.clone()));
         cities.insert("Gnjilane",City::new("Gnjilane", 0.180, -0.390, from_gnjilane.clone()));
-
+        cities.insert("Novi Pazar",City::new("Novi Pazar", 0.000, -0.150, from_novipazar.clone()));
 
         for (name, _) in &cities {
             city_states.insert(*name, CityState::Default);
@@ -265,7 +278,8 @@ impl SerbiaMap {
             cities,
             city_states,
             is_capital,
-            eligible_cities: Vec::new(),
+            eligible_cities_p: HashSet::new(),
+            eligible_cities_b: HashSet::new(),
             player: true,
             first_turn: true,
             not_first_click: true,
@@ -310,44 +324,72 @@ impl SerbiaMap {
 
             let new_state = match (state, is_hovered, is_clicked) {
                 (CityState::Player, _, _) => CityState::Player, // Keep clicked state if already clicked
-                (CityState::Bot,_,_) => CityState::Bot,
+                (CityState::Bot, _, _) => CityState::Bot,
                 (_, true, false) => CityState::Hovered, // Change to hovered if hovered
-                (_, _, true) => CityState::Clicked, // Change to clicked if clicke
+                (_, _, true) => CityState::Clicked, // Change to clicked if clicked
                 _ => CityState::Default, // Default state otherwise
             };
             self.city_states.insert(*name, new_state);
 
-
-
             if self.player {
-                if self.eligible_cities.is_empty() {
+                if self.eligible_cities_p.is_empty() {
                     if new_state == CityState::Clicked {
                         self.city_states.insert(*name, CityState::Player);
-                        self.player = false;
                         if self.first_turn {
                             self.is_capital.insert(*name, true);
                         }
-                        for neighbor in *city.connected_to {
-                            self.eligible_cities.push(neighbor);
+                        for neighbor in &city.connected_to {
+                            if self.city_states[*neighbor] != CityState::Bot && self.city_states[*neighbor] != CityState::Player {
+                                self.eligible_cities_p.insert(*neighbor);
+                            }
                         }
                         self.not_first_click = false;
+                        self.player = false;
                     }
                 } else {
-                    if new_state == CityState::Clicked && *self.eligible_cities.iter().find(*name) {
-                        //todo
+                    if new_state == CityState::Clicked && self.eligible_cities_p.contains(name) {
+                        self.city_states.insert(*name, CityState::Player);
+                        for neighbor in &city.connected_to {
+                            if self.city_states[*neighbor] != CityState::Bot && self.city_states[*neighbor] != CityState::Player {
+                                self.eligible_cities_p.insert(*neighbor);
+                            }
+                        }
+                        self.eligible_cities_p.remove(*name);
+                        self.eligible_cities_b.remove(*name);
+                        self.player = false;
                     }
                 }
                 // uslovi: CityState::Clicked, susedi su od CityState::Player
                 // dopustena polja: zuta boja
-
             } else { // BOT GRANA
-                if state == CityState::Default {
-                    self.city_states.insert(*name, CityState::Bot);
-                    if self.first_turn {
-                        self.is_capital.insert(*name, true);
-                        self.first_turn = false;
+                if self.eligible_cities_b.is_empty() {
+                    if state == CityState::Default {
+                        self.city_states.insert(*name, CityState::Bot);
+                        if self.first_turn {
+                            self.is_capital.insert(*name, true);
+                            self.first_turn = false;
+                        }
+                        for neighbor in &city.connected_to {
+                            if self.city_states[*neighbor] != CityState::Bot && self.city_states[*neighbor] != CityState::Player {
+                                self.eligible_cities_b.insert(*neighbor);
+                            }
+                        }
+                        self.player = true;
+                        //println!("nema {}", self.eligible_cities_b.len());
                     }
-                    self.player = true;
+                } else {
+                    if state == CityState::Default && self.eligible_cities_b.contains(name) {
+                        self.city_states.insert(*name, CityState::Bot);
+                        for neighbor in &city.connected_to {
+                            if self.city_states[*neighbor] != CityState::Bot && self.city_states[*neighbor] != CityState::Player {
+                                self.eligible_cities_b.insert(*neighbor);
+                            }
+                        }
+                        self.eligible_cities_p.remove(*name);
+                        self.eligible_cities_b.remove(*name);
+                        self.player = true;
+                        //println!("ima {}", self.eligible_cities_b.len());
+                    }
                 }
             }
 
@@ -367,7 +409,13 @@ impl SerbiaMap {
                     }
                 },
                 CityState::Hovered => Color32::from_rgb(200, 100, 100),
-                _ => Color32::from_rgb(100, 200, 100)
+                _ => {
+                    if self.eligible_cities_p.contains(name) || self.eligible_cities_p.is_empty() {
+                        Color32::from_rgb(200, 200, 0)
+                    } else {
+                        Color32::from_rgb(100, 200, 100)
+                    }
+                }
             };
 
             ui.painter().circle_filled(city_position, radius, color);
