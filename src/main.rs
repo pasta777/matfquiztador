@@ -57,14 +57,24 @@ impl Default for MyApp {
 }
 
 impl eframe::App for MyApp {
-    async fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         if self.main_menu {
             egui::CentralPanel::default().show(ctx, |ui| {
                 ui.style_mut().text_styles.insert(
                     egui::TextStyle::Button,
                     egui::FontId::new(24.0, eframe::epaint::FontFamily::Proportional)
                 );
-                ui.with_layout(Layout::top_down(Align::Center).with_cross_align(Align::Center), |ui| {
+                let url = tokio::runtime::Runtime::new().unwrap().block_on(async {
+                    match CreateSessionToken() {
+                        Ok(url) => Ok(url),
+                        Err(err) => {
+                            eprintln!("Error creating session token: {}", err);
+                            Err("Error".to_string()) // Exit the function if an error occurs
+                        }
+                    }
+                });
+
+                ui.with_layout(Layout::top_down(Align::Center).with_cross_align(Align::Center), |ui| async {
                     // HACK ZA CENTRIRANJE TEKSTA NE KORISTITI NIGDE DRUGDE
                     // TREBA PRONACI BOLJI NACIN ALI TOP DOWN SA CROSS ALIGN NE RADI
                     // NE RADI NI KOMBINOVANJE HORIZONTAL CENTER I VERTICAL CENTER -- KNOWN BUG IN EGUI
@@ -72,17 +82,16 @@ impl eframe::App for MyApp {
                         ui.label("");
                     }
                     // HACK SE OVDE ZAVRSAVA
-                    if ui.button("Play!").clicked() {
-                            self.session_token_url = match CreateSessionToken().await {
-                                Ok(url) => url,
-                                Err(err) => {
-                                    eprintln!("Error creating session token: {}", err);
-                                    return; // Exit the function if an error occurs
-                                }
+                    match url {
+                        Ok(session_token_url) => {
+                            if ui.button("Play!").clicked() {
+                                self.session_token_url = session_token_url;
+                                self.main_menu = false;
+                                self.playing = true;
                             }
-                        self.main_menu = false;
-                        self.playing = true;
+                        }
                     }
+
                     if ui.button("Settings").clicked() {
                     }
                     if ui.button("Exit").clicked() {
@@ -105,7 +114,10 @@ impl eframe::App for MyApp {
             }
         if self.serbia_map.show_question {
             if self.question_vector.is_empty() {
-                self.question_vector = FillQuestionVector(self.session_token_url.clone());
+                self.question_vector = FillQuestionVector(self.session_token_url.clone()).await.unwrap_or_else(|err| {
+                    eprintln!("Error: {}", err);
+                    Vec::new()
+                });
             }
             if !self.question_generated {
                 let mut rng = rand::thread_rng();
