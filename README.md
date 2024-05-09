@@ -66,7 +66,7 @@ Ukoliko su je i u tom slučaju pobednik neodređen, svi igrači igraju dodatnu r
 * Implementirati odabir broja poteza u fazi ratovanja na početku, odnosno broj poteza posle kojih će igra po difoltu biti gotova
 * Implementirati sistem, bilo eksterni ili interni, kojim će se pamtiti broj uspešnih odbrana teritorije nekog igrača.
 * Implementirati sudden death rundu u slučaju nerešene partije po svim parametrima
-* Implementirati bazu sa pitanjima, tako da se pitanja u bilo kom trenutku ne ponavljaju u toku igre. (Miloš)
+* Implementirati bazu sa pitanjima, tako da se pitanja u bilo kom trenutku ne ponavljaju u toku igre. (Miloš) DONE
 * Srediti prozor, i sam izgled igre. (Stepan)
 * Odlučiti se dodavanje minimalističkog AI igrača ili fokusiranje na igru za više igrača i implementirati odabrano. (Stepan)
 
