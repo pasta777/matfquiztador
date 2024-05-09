@@ -32,7 +32,7 @@ impl City {
 
 pub struct SerbiaMap {
     cities: HashMap<&'static str, City>,
-    city_states: HashMap<&'static str, CityState>,
+    pub city_states: HashMap<&'static str, CityState>,
     is_capital: HashMap<&'static str, bool>,
     eligible_cities_p: HashSet<&'static str>,
     eligible_cities_b: HashSet<&'static str>,
@@ -41,6 +41,7 @@ pub struct SerbiaMap {
     pub show_question: bool,
     pub correct_p: bool,
     pub war_phase: i8,
+    indicator: bool,
 }
 
 impl SerbiaMap {
@@ -56,6 +57,19 @@ impl SerbiaMap {
                 eligible_cities.insert(c);
             }
         }
+    }
+    pub fn state_change(&mut self, correct: bool) {
+        for (_name, state) in &mut self.city_states {
+            if *state == CityState::Clicked {
+                if correct {
+                    *state = CityState::Player;
+                } else {
+                    *state = CityState::Bot;
+                }
+            }
+        }
+        // rust got me tweakin'
+        self.show_question = false;
     }
     pub fn new() -> Self {
         let mut cities = HashMap::new();
@@ -294,6 +308,7 @@ impl SerbiaMap {
             show_question: false,
             correct_p: false,
             war_phase: 0,
+            indicator: false,
         }
     }
     pub fn draw(&mut self, ui: &mut Ui, panel_size: Pos2) {
@@ -339,6 +354,7 @@ impl SerbiaMap {
             let is_eligible = self.eligible_cities_p.contains(name) || self.eligible_cities_p.is_empty();
 
             let new_state = match (state, is_hovered, is_clicked, is_eligible, self.war_phase) {
+                (CityState::Clicked, _, _, _, 32) => CityState::Clicked,
                 (CityState::Bot, true, _, true, 32) => CityState::Hovered,
                 (CityState::Bot, _, true, true, 32) => CityState::Clicked,
                 (CityState::Player, _, _, _, _) => CityState::Player,
@@ -355,9 +371,9 @@ impl SerbiaMap {
                 if self.player {
                     if state == CityState::Player {
                         SerbiaMap::neighbors(city.clone(), CityState::Bot, &self.city_states, &mut self.eligible_cities_p);
-                        for _c in &self.eligible_cities_p {
-                            if new_state == CityState::Clicked {
-                                // PITANJE
+                        for c in &self.eligible_cities_p {
+                            if self.city_states[c] == CityState::Clicked {
+                                self.show_question = true;
                             }
                         }
                     }

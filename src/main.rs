@@ -97,20 +97,16 @@ impl eframe::App for MyApp {
                     );
                     ui.heading("The Question placeholder");
                     if ui.button("Option 1").clicked() {
-                        self.serbia_map.correct_p = false;
-                        self.serbia_map.show_question = false;
+                        self.serbia_map.state_change(false);
                     }
                     if ui.button("Option 2").clicked() {
-                        self.serbia_map.correct_p = true;
-                        self.serbia_map.show_question = false;
+                        self.serbia_map.state_change(true);
                     }
                     if ui.button("Option 3").clicked() {
-                        self.serbia_map.correct_p = false;
-                        self.serbia_map.show_question = false;
+                        self.serbia_map.state_change(false);
                     }
                     if ui.button("Option 4").clicked() {
-                        self.serbia_map.correct_p = false;
-                        self.serbia_map.show_question = false;
+                        self.serbia_map.state_change(false);
                     }
                 });
             });
