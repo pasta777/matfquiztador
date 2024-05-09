@@ -40,6 +40,7 @@ pub struct SerbiaMap {
     pub first_turn: bool,
     pub show_question: bool,
     pub correct_p: bool,
+    pub war_phase: i8,
 }
 
 impl SerbiaMap {
@@ -48,6 +49,13 @@ impl SerbiaMap {
         let x_new = panel_center.x + city_position.x * panel_size.x;
         let y_new = panel_center.y - city_position.y * panel_size.y;
         Pos2::new(x_new, y_new)
+    }
+    fn neighbors(city: City, city_state: CityState, city_states: &HashMap<&'static str, CityState>, eligible_cities: &mut HashSet<&'static str>) {
+        for c in city.connected_to {
+            if city_states[c] == city_state {
+                eligible_cities.insert(c);
+            }
+        }
     }
     pub fn new() -> Self {
         let mut cities = HashMap::new();
@@ -285,6 +293,7 @@ impl SerbiaMap {
             first_turn: true,
             show_question: false,
             correct_p: false,
+            war_phase: 0,
         }
     }
     pub fn draw(&mut self, ui: &mut Ui, panel_size: Pos2) {
@@ -302,6 +311,12 @@ impl SerbiaMap {
                         } else {
                             Color32::from_rgb(50, 100, 50)
                         }
+                    } else if self.war_phase == 32 {
+                        if (self.city_states[name1] == CityState::Bot && self.city_states[name2] == CityState::Hovered) || (self.city_states[name2] == CityState::Bot && self.city_states[name1] == CityState::Hovered) {
+                            Color32::from_rgb(255,50,50)
+                        } else {
+                            Color32::from_rgb(200, 0, 200)
+                        }
                     } else {
                         Color32::from_rgb(50, 100, 50)
                     };
@@ -311,7 +326,6 @@ impl SerbiaMap {
                 );
             }
         }
-
         for (name, city) in &self.cities {
             let state = *self.city_states.get(name).unwrap_or(&CityState::Default);
             let city_position = Self::normalize(panel_size, city.position);
@@ -324,28 +338,53 @@ impl SerbiaMap {
                 .clicked();
             let is_eligible = self.eligible_cities_p.contains(name) || self.eligible_cities_p.is_empty();
 
-            let new_state = match (state, is_hovered, is_clicked, is_eligible) {
-                (CityState::Player, _, _, _) => CityState::Player, // Keep clicked state if already clicked
-                (CityState::Bot, _, _, _) => CityState::Bot,
-                (_, true, false, true) => CityState::Hovered, // Change to hovered if hovered
-                (_, _, true, true) => CityState::Clicked, // Change to clicked if clicked
+            let new_state = match (state, is_hovered, is_clicked, is_eligible, self.war_phase) {
+                (CityState::Bot, true, _, true, 32) => CityState::Hovered,
+                (CityState::Bot, _, true, true, 32) => CityState::Clicked,
+                (CityState::Player, _, _, _, _) => CityState::Player,
+                (CityState::Bot, _, _, _, _) => CityState::Bot,
+                (_, true, false, true, _) => CityState::Hovered, // Change to hovered if hovered
+                (_, _, true, true, _) => CityState::Clicked, // Change to clicked if clicked
+                (CityState::Hovered, _, _, true, 32) => CityState::Bot,
                 _ => CityState::Default, // Default state otherwise
             };
             self.city_states.insert(*name, new_state);
 
-            if self.player { // IGRAC
-                if self.eligible_cities_p.is_empty() { // AKO NEMA SLOBODNIH POLJA
-                    if new_state == CityState::Clicked {  // AKO JE KLIKNUTO BILO KOJE POLJE
-                        if self.first_turn { // PRVI POTEZ
-                            self.city_states.insert(*name, CityState::Player);
-                            self.is_capital.insert(*name, true);
-                            for neighbor in &city.connected_to {
-                                if self.city_states[*neighbor] != CityState::Bot && self.city_states[*neighbor] != CityState::Player {
-                                    self.eligible_cities_p.insert(*neighbor);
-                                }
+            // FAZA RATOVANJA
+            if self.war_phase == 32 {
+                if self.player {
+                    if state == CityState::Player {
+                        SerbiaMap::neighbors(city.clone(), CityState::Bot, &self.city_states, &mut self.eligible_cities_p);
+                        for _c in &self.eligible_cities_p {
+                            if new_state == CityState::Clicked {
+                                // PITANJE
                             }
-                        } else { // BILO KOJI POTEZ
+                        }
+                    }
+                } else {
+                    if state == CityState::Bot {
+                        SerbiaMap::neighbors(city.clone(), CityState::Player, &self.city_states, &mut self.eligible_cities_b);
+                        for _c in &self.eligible_cities_p {
+                            // PITANJE
+                        }
+                    }
+                }
+            } else { // FAZA ODABIRA
+                if self.player { // IGRAC
+                    if self.eligible_cities_p.is_empty() { // AKO NEMA SLOBODNIH POLJA
+                        if new_state == CityState::Clicked {  // AKO JE KLIKNUTO BILO KOJE POLJE
+                            if self.first_turn { // PRVI POTEZ
                                 self.city_states.insert(*name, CityState::Player);
+                                self.war_phase = self.war_phase + 1;
+                                self.is_capital.insert(*name, true);
+                                for neighbor in &city.connected_to {
+                                    if self.city_states[*neighbor] != CityState::Bot && self.city_states[*neighbor] != CityState::Player {
+                                        self.eligible_cities_p.insert(*neighbor);
+                                    }
+                                }
+                            } else { // BILO KOJI POTEZ
+                                self.city_states.insert(*name, CityState::Player);
+                                self.war_phase = self.war_phase + 1;
                                 for neighbor in &city.connected_to {
                                     if self.city_states[*neighbor] != CityState::Bot && self.city_states[*neighbor] != CityState::Player {
                                         self.eligible_cities_p.insert(*neighbor);
@@ -353,14 +392,14 @@ impl SerbiaMap {
                                 }
                                 self.eligible_cities_p.remove(*name);
                                 self.eligible_cities_b.remove(*name);
-
+                            }
+                            self.player = false;
                         }
-                        self.player = false;
-                    }
-                } else { // AKO IMA SLOBODNIH POLJA
-                    if new_state == CityState::Clicked && self.eligible_cities_p.contains(name) { // AKO JE KLIKNUTO SLOBODNO POLJE
-                        //self.show_question = true;
+                    } else { // AKO IMA SLOBODNIH POLJA
+                        if new_state == CityState::Clicked && self.eligible_cities_p.contains(name) { // AKO JE KLIKNUTO SLOBODNO POLJE
+                            //self.show_question = true;
                             self.city_states.insert(*name, CityState::Player);
+                            self.war_phase = self.war_phase + 1;
                             for neighbor in &city.connected_to {
                                 if self.city_states[*neighbor] != CityState::Bot && self.city_states[*neighbor] != CityState::Player {
                                     self.eligible_cities_p.insert(*neighbor);
@@ -369,25 +408,27 @@ impl SerbiaMap {
                             self.eligible_cities_p.remove(*name);
                             self.eligible_cities_b.remove(*name);
 
-                        self.player = false;
+                            self.player = false;
+                        }
                     }
-                }
-                // uslovi: CityState::Clicked, susedi su od CityState::Player
-                // dopustena polja: zuta boja
-            } else { // BOT GRANA
-                if self.eligible_cities_b.is_empty() { // AKO NEMA SLOBODNIH POLJA
-                    if state == CityState::Default { // BILO KOJE POLJE
-                        if self.first_turn { // PRVI POTEZ
-                            self.city_states.insert(*name, CityState::Bot);
-                            self.is_capital.insert(*name, true);
-                            self.first_turn = false;
-                            for neighbor in &city.connected_to {
-                                if self.city_states[*neighbor] != CityState::Bot && self.city_states[*neighbor] != CityState::Player {
-                                    self.eligible_cities_b.insert(*neighbor);
-                                }
-                            }
-                        } else {
+                    // uslovi: CityState::Clicked, susedi su od CityState::Player
+                    // dopustena polja: zuta boja
+                } else { // BOT GRANA
+                    if self.eligible_cities_b.is_empty() { // AKO NEMA SLOBODNIH POLJA
+                        if state == CityState::Default { // BILO KOJE POLJE
+                            if self.first_turn { // PRVI POTEZ
                                 self.city_states.insert(*name, CityState::Bot);
+                                self.war_phase = self.war_phase + 1;
+                                self.is_capital.insert(*name, true);
+                                self.first_turn = false;
+                                for neighbor in &city.connected_to {
+                                    if self.city_states[*neighbor] != CityState::Bot && self.city_states[*neighbor] != CityState::Player {
+                                        self.eligible_cities_b.insert(*neighbor);
+                                    }
+                                }
+                            } else {
+                                self.city_states.insert(*name, CityState::Bot);
+                                self.war_phase = self.war_phase + 1;
                                 for neighbor in &city.connected_to {
                                     if self.city_states[*neighbor] != CityState::Bot && self.city_states[*neighbor] != CityState::Player {
                                         self.eligible_cities_b.insert(*neighbor);
@@ -395,15 +436,14 @@ impl SerbiaMap {
                                 }
                                 self.eligible_cities_p.remove(*name);
                                 self.eligible_cities_b.remove(*name);
-
+                            }
+                            self.player = true;
+                            //println!("nema {}", self.eligible_cities_b.len());
                         }
-                        self.player = true;
-                        //println!("nema {}", self.eligible_cities_b.len());
-                    }
-                } else { // IMA SLOBODNIH POLJA
-                    if state == CityState::Default && self.eligible_cities_b.contains(name) { // IZABRANO SLOBODNO POLJE
-
+                    } else { // IMA SLOBODNIH POLJA
+                        if state == CityState::Default && self.eligible_cities_b.contains(name) { // IZABRANO SLOBODNO POLJE
                             self.city_states.insert(*name, CityState::Bot);
+                            self.war_phase = self.war_phase + 1;
                             for neighbor in &city.connected_to {
                                 if self.city_states[*neighbor] != CityState::Bot && self.city_states[*neighbor] != CityState::Player {
                                     self.eligible_cities_b.insert(*neighbor);
@@ -411,8 +451,8 @@ impl SerbiaMap {
                             }
                             self.eligible_cities_p.remove(*name);
                             self.eligible_cities_b.remove(*name);
-
-                        self.player = true;
+                            self.player = true;
+                        }
                     }
                 }
             }
@@ -432,7 +472,12 @@ impl SerbiaMap {
                         Color32::from_rgb(255,50,50)
                     }
                 },
-                CityState::Hovered => Color32::from_rgb(200, 100, 100),
+                CityState::Hovered =>
+                    if self.war_phase == 32 {
+                        Color32::from_rgb(200, 0, 200)
+                    } else {
+                        Color32::from_rgb(200, 100, 100)
+                    },
                 _ => {
                     if self.eligible_cities_p.contains(name) || self.eligible_cities_p.is_empty() {
                         Color32::from_rgb(200, 200, 0)

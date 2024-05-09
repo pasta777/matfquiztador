@@ -75,6 +75,9 @@ impl eframe::App for MyApp {
                     if self.serbia_map.first_turn {
                         ui.heading("Choose capital city.");
                     }
+                    if self.serbia_map.war_phase == 32 {
+                        ui.heading("War phase");
+                    }
                     self.serbia_map.draw(ui, Pos2::new(panel_size.x, panel_size.y));
                 });
             }
