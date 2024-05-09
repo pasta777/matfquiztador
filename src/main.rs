@@ -2,10 +2,11 @@ mod map;
 
 use eframe::egui;
 use egui::{Align, Layout, Pos2};
-use htmlentity::entity::decode;
 use rand::Rng;
 use serde::Deserialize;
 use crate::map::SerbiaMap;
+use htmlentity::entity::{decode, ICodedDataTrait};
+use std::sync::{Arc, Mutex};
 
 // na escape se izlazi sada
 
@@ -73,31 +74,26 @@ impl eframe::App for MyApp {
                         }
                     }
                 });
-
-                ui.with_layout(Layout::top_down(Align::Center).with_cross_align(Align::Center), |ui| async {
-                    // HACK ZA CENTRIRANJE TEKSTA NE KORISTITI NIGDE DRUGDE
-                    // TREBA PRONACI BOLJI NACIN ALI TOP DOWN SA CROSS ALIGN NE RADI
-                    // NE RADI NI KOMBINOVANJE HORIZONTAL CENTER I VERTICAL CENTER -- KNOWN BUG IN EGUI
-                    for _i in 1..20 {
-                        ui.label("");
-                    }
-                    // HACK SE OVDE ZAVRSAVA
-                    match url {
-                        Ok(session_token_url) => {
-                            if ui.button("Play!").clicked() {
-                                self.session_token_url = session_token_url;
-                                self.main_menu = false;
-                                self.playing = true;
-                            }
+                if let Ok(session_token_url) = url {
+                    ui.with_layout(Layout::top_down(Align::Center).with_cross_align(Align::Center), |ui| {
+                        // HACK ZA CENTRIRANJE TEKSTA NE KORISTITI NIGDE DRUGDE
+                        // TREBA PRONACI BOLJI NACIN ALI TOP DOWN SA CROSS ALIGN NE RADI
+                        // NE RADI NI KOMBINOVANJE HORIZONTAL CENTER I VERTICAL CENTER -- KNOWN BUG IN EGUI
+                        for _i in 1..20 {
+                            ui.label("");
                         }
-                    }
-
-                    if ui.button("Settings").clicked() {
-                    }
-                    if ui.button("Exit").clicked() {
-                        ui.ctx().send_viewport_cmd(egui::ViewportCommand::Close);
-                    }
-                });
+                        // HACK SE OVDE ZAVRSAVA
+                        if ui.button("Play!").clicked() {
+                            self.session_token_url = session_token_url;
+                            self.main_menu = false;
+                            self.playing = true;
+                        }
+                        if ui.button("Settings").clicked() {}
+                        if ui.button("Exit").clicked() {
+                            ui.ctx().send_viewport_cmd(egui::ViewportCommand::Close);
+                        }
+                    });
+                }
             });
         }
         if self.playing {
@@ -112,11 +108,24 @@ impl eframe::App for MyApp {
                     self.serbia_map.draw(ui, Pos2::new(panel_size.x, panel_size.y));
                 });
             }
+        let session_token_url = Arc::new(Mutex::new(self.session_token_url.clone()));
         if self.serbia_map.show_question {
             if self.question_vector.is_empty() {
-                self.question_vector = FillQuestionVector(self.session_token_url.clone()).await.unwrap_or_else(|err| {
-                    eprintln!("Error: {}", err);
-                    Vec::new()
+                let session_token_url_clone = Arc::clone(&session_token_url);
+                tokio::spawn(async move {
+                    let session_token_url_inner = session_token_url_clone.lock().unwrap();
+                    let result = FillQuestionVector(session_token_url_inner.clone()).await;
+                    match result {
+                        Ok(questions) => {
+                            // Communicate the result back to the update function
+                            // (for example, by updating a field in MyApp)
+                            self.question_vector = questions;
+                        }
+                        Err(err) => {
+                            eprintln!("Error filling question vector: {}", err);
+                            // Handle the error if needed
+                        }
+                    }
                 });
             }
             if !self.question_generated {
@@ -253,8 +262,6 @@ async fn CreateSessionToken() -> Result<String, Box<dyn std::error::Error>> {
     }
 }
 
-
-#[tokio::main]
 async fn FillQuestionVector(SessionUrl: String) -> Result<Vec<Question>, Box<dyn std::error::Error>> {
     let response = reqwest::get(&SessionUrl).await?;
 
