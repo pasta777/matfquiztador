@@ -3,6 +3,7 @@ use eframe::emath::{Pos2, Rect, Vec2};
 use eframe::epaint::{Color32, FontId, Stroke};
 use egui::{Sense, Ui};
 use rand::{Rng};
+use rand::rngs::ThreadRng;
 
 #[derive(Clone)]
 struct City {
@@ -12,7 +13,7 @@ struct City {
 }
 
 #[derive(Clone, Copy, Eq, PartialEq, Debug)]
-enum CityState {
+pub enum CityState {
     Default,
     Hovered,
     Clicked,
@@ -36,12 +37,14 @@ pub struct SerbiaMap {
     is_capital: HashMap<&'static str, bool>,
     eligible_cities_p: HashSet<&'static str>,
     eligible_cities_b: HashSet<&'static str>,
-    player: bool,
+    pub player: bool,
     pub first_turn: bool,
     pub show_question: bool,
     pub correct_p: bool,
     pub war_phase: i8,
-    indicator: bool,
+    pub bot_attacked: bool,
+    pub attacked_city: &'static str,
+    rng: ThreadRng,
 }
 
 impl SerbiaMap {
@@ -58,18 +61,29 @@ impl SerbiaMap {
             }
         }
     }
-    pub fn state_change(&mut self, correct: bool) {
-        for (_name, state) in &mut self.city_states {
+    pub fn state_change(&mut self, correct: bool) -> bool {
+        let x: f64 = self.rng.gen();
+        let bot = x < 0.5;
+        for (name, state) in &mut self.city_states {
             if *state == CityState::Clicked {
-                if correct {
+                if correct && bot {
+                } else if correct {
                     *state = CityState::Player;
-                } else {
+                    self.eligible_cities_p.remove(*name);
+                } else if bot {
                     *state = CityState::Bot;
+                    self.eligible_cities_b.remove(*name);
+                } else {
+                    if self.player {
+                        *state = CityState::Bot;
+                    } else {
+                        *state = CityState::Player;
+                    }
                 }
             }
         }
+        return bot;
         // rust got me tweakin'
-        self.show_question = false;
     }
     pub fn new() -> Self {
         let mut cities = HashMap::new();
@@ -308,7 +322,9 @@ impl SerbiaMap {
             show_question: false,
             correct_p: false,
             war_phase: 0,
-            indicator: false,
+            bot_attacked: false,
+            attacked_city: "",
+            rng: rand::thread_rng(),
         }
     }
     pub fn draw(&mut self, ui: &mut Ui, panel_size: Pos2) {
@@ -355,8 +371,20 @@ impl SerbiaMap {
 
             let new_state = match (state, is_hovered, is_clicked, is_eligible, self.war_phase) {
                 (CityState::Clicked, _, _, _, 32) => CityState::Clicked,
-                (CityState::Bot, true, _, true, 32) => CityState::Hovered,
-                (CityState::Bot, _, true, true, 32) => CityState::Clicked,
+                (CityState::Bot, true, _, true, 32) => {
+                    if self.player {
+                        CityState::Hovered
+                    } else {
+                        CityState::Bot
+                    }
+                },
+                (CityState::Bot, _, true, true, 32) => {
+                    if self.player {
+                        CityState::Clicked
+                    } else {
+                        CityState::Bot
+                    }
+                },
                 (CityState::Player, _, _, _, _) => CityState::Player,
                 (CityState::Bot, _, _, _, _) => CityState::Bot,
                 (_, true, false, true, _) => CityState::Hovered, // Change to hovered if hovered
@@ -378,10 +406,18 @@ impl SerbiaMap {
                         }
                     }
                 } else {
-                    if state == CityState::Bot {
-                        SerbiaMap::neighbors(city.clone(), CityState::Player, &self.city_states, &mut self.eligible_cities_b);
-                        for _c in &self.eligible_cities_p {
-                            // PITANJE
+                    let x: f64 = self.rng.gen();
+                    if !self.bot_attacked {
+                        if state == CityState::Bot {
+                            SerbiaMap::neighbors(city.clone(), CityState::Player, &self.city_states, &mut self.eligible_cities_b);
+                            for c in &self.eligible_cities_b {
+                                if x < 0.5 {
+                                    self.city_states.insert(*c, CityState::Clicked);
+                                    self.bot_attacked = true;
+                                    self.attacked_city = *c;
+                                    break;
+                                }
+                            }
                         }
                     }
                 }
