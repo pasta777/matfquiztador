@@ -60,14 +60,14 @@ Ukoliko su je i u tom slučaju pobednik neodređen, svi igrači igraju dodatnu r
 * Implementirati sve gradove i grane povezanosti između njih (Mihajlo) DONE
 * Implementirati etapu postavljanja glavnih gradova na početku (Mihajlo) DONE
 * Implementirati grafički prikaz slobodnih, osvojenih kao i teritorija na kojima je glavni grad. (Stepan) DONE
-* Implementirati etapu biranja slobodnih teritorija DONE
-* Implementirati etapu ratovanja
-* Implementirati grafički prikaz napada nekog igrača na neku teritoriju, recimo postavljanja barjaka tog igrača na tu teritoriju kao deklaraciju napada. (Stepan)
-* Implementirati odabir broja poteza u fazi ratovanja na početku, odnosno broj poteza posle kojih će igra po difoltu biti gotova
-* Implementirati sistem, bilo eksterni ili interni, kojim će se pamtiti broj uspešnih odbrana teritorije nekog igrača.
-* Implementirati sudden death rundu u slučaju nerešene partije po svim parametrima
+* Implementirati etapu biranja slobodnih teritorija (Stepan) DONE
+* Implementirati etapu ratovanja (Stepan)
+* Implementirati grafički prikaz napada nekog igrača na neku teritoriju, recimo postavljanja barjaka tog igrača na tu teritoriju kao deklaraciju napada. (Stepan) DONE
+* Implementirati odabir broja poteza u fazi ratovanja na početku, odnosno broj poteza posle kojih će igra po difoltu biti gotova (Stepan)
+* Implementirati sistem, bilo eksterni ili interni, kojim će se pamtiti broj uspešnih odbrana teritorije nekog igrača. (Stepan)
+* Implementirati sudden death rundu u slučaju nerešene partije po svim parametrima (Stepan)
 * Implementirati bazu sa pitanjima, tako da se pitanja u bilo kom trenutku ne ponavljaju u toku igre. (Miloš) DONE
-* Srediti prozor, i sam izgled igre. (Stepan)
-* Odlučiti se dodavanje minimalističkog AI igrača ili fokusiranje na igru za više igrača i implementirati odabrano. (Stepan)
+* Srediti prozor, i sam izgled igre. (Stepan) DONE
+* Odlučiti se dodavanje minimalističkog AI igrača ili fokusiranje na igru za više igrača i implementirati odabrano. (Stepan) DONE
 
 Ukoliko želite da preuzmete nešto sa ove liste, upišite vaše ime npr. (Stojan) pored stavke kojom želite vi da se bavite. Nakon finaliziranje te stavke stavite #DONE pored stavke ukoliko ste zadovoljni obradom.
