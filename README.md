@@ -61,10 +61,10 @@ Ukoliko su je i u tom slučaju pobednik neodređen, svi igrači igraju dodatnu r
 * Implementirati etapu postavljanja glavnih gradova na početku (Mihajlo) DONE
 * Implementirati grafički prikaz slobodnih, osvojenih kao i teritorija na kojima je glavni grad. (Stepan) DONE
 * Implementirati etapu biranja slobodnih teritorija (Stepan) DONE
-* Implementirati etapu ratovanja (Stepan)
+* Implementirati etapu ratovanja (Stepan) DONE
 * Implementirati grafički prikaz napada nekog igrača na neku teritoriju, recimo postavljanja barjaka tog igrača na tu teritoriju kao deklaraciju napada. (Stepan) DONE
-* Implementirati odabir broja poteza u fazi ratovanja na početku, odnosno broj poteza posle kojih će igra po difoltu biti gotova (Stepan)
-* Implementirati sistem, bilo eksterni ili interni, kojim će se pamtiti broj uspešnih odbrana teritorije nekog igrača. (Stepan)
+* Implementirati odabir broja poteza u fazi ratovanja na početku, odnosno broj poteza posle kojih će igra po difoltu biti gotova (Stepan) DONE
+* Implementirati sistem, bilo eksterni ili interni, kojim će se pamtiti broj uspešnih odbrana teritorije nekog igrača. (Stepan) DONE
 * Implementirati sudden death rundu u slučaju nerešene partije po svim parametrima (Stepan)
 * Implementirati bazu sa pitanjima, tako da se pitanja u bilo kom trenutku ne ponavljaju u toku igre. (Miloš) DONE
 * Srediti prozor, i sam izgled igre. (Stepan) DONE

@@ -3,6 +3,7 @@ use eframe::emath::{Pos2, Rect, Vec2};
 use eframe::epaint::{Color32, FontId, Stroke};
 use egui::{Sense, Ui};
 use rand::{Rng};
+use rand::prelude::SliceRandom;
 use rand::rngs::ThreadRng;
 
 #[derive(Clone)]
@@ -11,7 +12,6 @@ struct City {
     position: Pos2,
     connected_to: Vec<&'static str>,
 }
-
 #[derive(Clone, Copy, Eq, PartialEq, Debug)]
 pub enum CityState {
     Default,
@@ -20,7 +20,6 @@ pub enum CityState {
     Player,
     Bot,
 }
-
 impl City {
     fn new(name: &'static str, x: f32, y: f32, connected_to: Vec<&'static str>) -> Self {
         City {
@@ -45,6 +44,14 @@ pub struct SerbiaMap {
     pub bot_attacked: bool,
     pub attacked_city: &'static str,
     rng: ThreadRng,
+    pub difficulty: f64,
+    pub num_turns: u8,
+    pub max_turns: u8,
+    pub winner: &'static str,
+    pub player_defended: u32,
+    pub bot_defended: u32,
+    pub player_capital_health: u8,
+    pub bot_capital_health: u8,
 }
 
 impl SerbiaMap {
@@ -63,16 +70,52 @@ impl SerbiaMap {
     }
     pub fn state_change(&mut self, correct: bool) -> bool {
         let x: f64 = self.rng.gen();
-        let bot = x < 0.5;
+        let bot = x < self.difficulty;
         for (name, state) in &mut self.city_states {
             if *state == CityState::Clicked {
                 if correct && bot {
                 } else if correct {
-                    *state = CityState::Player;
-                    self.eligible_cities_p.remove(*name);
+                    if self.is_capital[*name] {
+                        if self.player {
+                            self.bot_capital_health -= 1;
+                            *state = CityState::Bot;
+                        } else {
+                            *state = CityState::Player;
+                        }
+                        if self.bot_capital_health == 0 {
+                            *state = CityState::Player;
+                            self.eligible_cities_p.remove(*name);
+                            self.winner = "Player";
+                            self.is_capital.insert(*name, false);
+                        }
+                    } else {
+                        *state = CityState::Player;
+                        self.eligible_cities_p.remove(*name);
+                        for c in &self.cities[*name].connected_to {
+                            self.eligible_cities_b.remove(*c);
+                        }
+                    }
                 } else if bot {
-                    *state = CityState::Bot;
-                    self.eligible_cities_b.remove(*name);
+                    if self.is_capital[*name] {
+                        if self.player {
+                            *state = CityState::Bot;
+                        } else {
+                            self.player_capital_health -= 1;
+                            *state = CityState::Player;
+                        }
+                        if self.player_capital_health == 0 {
+                            *state = CityState::Bot;
+                            self.eligible_cities_b.remove(*name);
+                            self.winner = "Bot";
+                            self.is_capital.insert(*name, false);
+                        }
+                    } else {
+                        *state = CityState::Bot;
+                        self.eligible_cities_b.remove(*name);
+                        for c in &self.cities[*name].connected_to {
+                            self.eligible_cities_p.remove(*c);
+                        }
+                    }
                 } else {
                     if self.player {
                         *state = CityState::Bot;
@@ -129,6 +172,7 @@ impl SerbiaMap {
         from_belgrade.push("Sremska Mitrovica"); // Beograd, Novi Sad,Sabac, Sombor
         from_belgrade.push("Smederevo"); // Beograd, Pozarevac, Arandjelovac, Pancevo Velika Plana
         from_belgrade.push("Arandjelovac"); // Valjevo, Beograd, Cacak, Kragujevac, Velika Plana
+        from_belgrade.push("Novi Sad");
 
         from_pancevo.push("Belgrade");
         from_pancevo.push("Smederevo");
@@ -166,11 +210,11 @@ impl SerbiaMap {
         from_arandjelovac.push("Smederevo");
         //from_arandjelovac.push("Velika Plana");
 
-
         from_novisad.push("Sremska Mitrovica"); //-
         from_novisad.push("Zrenjanin"); //-
         from_novisad.push("Sombor"); // Novi Sad, Subotica
         from_novisad.push("Subotica"); //Sombor, Novi Sad, Kikinda
+        from_novisad.push("Belgrade");
 
         from_sombor.push("Novi Sad");
         from_sombor.push("Subotica");
@@ -209,6 +253,7 @@ impl SerbiaMap {
         from_jagodina.push("Bor");
         from_jagodina.push("Krusevac");
         from_jagodina.push("Smederevo");
+        from_jagodina.push("Nis");
         //from_jagodina.push("Velika Plana");
 
         from_bor.push("Jagodina");
@@ -233,6 +278,7 @@ impl SerbiaMap {
         from_nis.push("Pirot");
         from_nis.push("Prokuplje");
         from_nis.push("Leskovac");
+        from_nis.push("Jagodina");
 
         from_prokuplje.push("Nis");
         from_prokuplje.push("Leskovac");
@@ -325,6 +371,14 @@ impl SerbiaMap {
             bot_attacked: false,
             attacked_city: "",
             rng: rand::thread_rng(),
+            difficulty: 0.5,
+            num_turns: 0,
+            max_turns: 25,
+            winner: "",
+            player_defended: 0,
+            bot_defended: 0,
+            player_capital_health: 3,
+            bot_capital_health: 3,
         }
     }
     pub fn draw(&mut self, ui: &mut Ui, panel_size: Pos2) {
@@ -394,8 +448,33 @@ impl SerbiaMap {
             };
             self.city_states.insert(*name, new_state);
 
-            // FAZA RATOVANJA
-            if self.war_phase == 32 {
+            if self.winner != "" {
+                self.player = false;
+            } else if self.num_turns == self.max_turns {
+                self.player = false;
+                let mut player_territories = 0;
+                let mut bot_territories = 0;
+                for (_name, state) in &self.city_states {
+                    if *state == CityState::Player {
+                        player_territories += 1;
+                    } else if *state == CityState::Bot {
+                        bot_territories += 1;
+                    }
+                }
+                if player_territories > bot_territories {
+                    self.winner = "Player";
+                } else if bot_territories > player_territories {
+                    self.winner = "Bot";
+                } else {
+                    if self.player_defended > self.bot_defended {
+                        self.winner = "Player";
+                    } else if self.bot_defended > self.player_defended {
+                        self.winner = "Bot";
+                    } else {
+                        self.winner = "Draw";
+                    }
+                }
+            } else if self.war_phase == 32 { // FAZA RATOVANJA
                 if self.player {
                     if state == CityState::Player {
                         SerbiaMap::neighbors(city.clone(), CityState::Bot, &self.city_states, &mut self.eligible_cities_p);
@@ -406,18 +485,20 @@ impl SerbiaMap {
                         }
                     }
                 } else {
-                    let x: f64 = self.rng.gen();
+                    if state == CityState::Bot {
+                        SerbiaMap::neighbors(city.clone(), CityState::Player, &self.city_states, &mut self.eligible_cities_b);
+                    }
                     if !self.bot_attacked {
-                        if state == CityState::Bot {
-                            SerbiaMap::neighbors(city.clone(), CityState::Player, &self.city_states, &mut self.eligible_cities_b);
-                            for c in &self.eligible_cities_b {
-                                if x < 0.5 {
-                                    self.city_states.insert(*c, CityState::Clicked);
-                                    self.bot_attacked = true;
-                                    self.attacked_city = *c;
-                                    break;
-                                }
-                            }
+                        let mut temp = Vec::new();
+                        for c in &self.eligible_cities_b {
+                            temp.push(*c);
+                        }
+                        if !temp.is_empty() {
+                            temp.shuffle(&mut self.rng);
+                            let x = temp[0];
+                            self.city_states.insert(x, CityState::Clicked);
+                            self.bot_attacked = true;
+                            self.attacked_city = x;
                         }
                     }
                 }
@@ -508,7 +589,6 @@ impl SerbiaMap {
                     }
                 }
             }
-
             let color = match new_state {
                 CityState::Player => {
                     if self.is_capital[*name] {
@@ -538,10 +618,18 @@ impl SerbiaMap {
                     }
                 }
             };
-
+            let custom_name = if self.is_capital[*name] {
+                if self.city_states[*name] == CityState::Player || (!self.player && self.city_states[*name] == CityState::Clicked && self.war_phase == 32) {
+                    format!("{} ({}/3)", city.name, self.player_capital_health)
+                } else {
+                    format!("{} ({}/3)", city.name, self.bot_capital_health)
+                }
+            } else {
+                String::from(city.name)
+            };
             ui.painter().circle_filled(city_position, radius, color);
             ui.painter()
-                .text(Pos2::new(city_position.x, city_position.y - 20.0), egui::Align2::CENTER_CENTER, city.name, FontId::monospace(12.0), color);
+                .text(Pos2::new(city_position.x, city_position.y - 20.0), egui::Align2::CENTER_CENTER, custom_name, FontId::monospace(12.0), color);
         }
     }
 }

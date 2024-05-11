@@ -6,6 +6,7 @@ use htmlentity::entity::decode;
 use serde::Deserialize;
 use tokio::runtime;
 use htmlentity::entity::ICodedDataTrait;
+use rand::Rng;
 use crate::map::SerbiaMap;
 
 // na escape se izlazi sada
@@ -59,6 +60,9 @@ struct MyApp {
     confirm: bool,
     bot_correct: bool,
     player_correct: bool,
+    settings: bool,
+    question_generated: bool,
+    correct_answer: u8,
     /* Ovo je sve rezervisano za pitanja
     session_token_url: String,
     question_vector: Vec<Question>,
@@ -80,6 +84,9 @@ impl MyApp {
             confirm: false,
             bot_correct: false,
             player_correct: false,
+            settings: false,
+            question_generated: false,
+            correct_answer: 1,
             /*
             session_token_url: String::new(),
             question_vector: Vec::new(),
@@ -166,7 +173,6 @@ impl eframe::App for MyApp {
                     egui::TextStyle::Button,
                     egui::FontId::new(24.0, eframe::epaint::FontFamily::Proportional)
                 );
-
                 ui.with_layout(Layout::top_down(Align::Center).with_cross_align(Align::Center), |ui| {
                     // HACK ZA CENTRIRANJE TEKSTA NE KORISTITI NIGDE DRUGDE
                     // TREBA PRONACI BOLJI NACIN ALI TOP DOWN SA CROSS ALIGN NE RADI
@@ -180,9 +186,46 @@ impl eframe::App for MyApp {
                         self.playing = true;
                     }
                     if ui.button("Settings").clicked() {
+                        self.settings = true;
+                        self.main_menu = false;
                     }
                     if ui.button("Exit").clicked() {
                         ui.ctx().send_viewport_cmd(egui::ViewportCommand::Close);
+                    }
+                });
+            });
+        }
+        if self.settings {
+            egui::CentralPanel::default().show(ctx, |ui| {
+                ui.style_mut().text_styles.insert(
+                    egui::TextStyle::Button,
+                    egui::FontId::new(24.0, eframe::epaint::FontFamily::Proportional)
+                );
+                ui.style_mut().text_styles.insert(
+                    egui::TextStyle::Heading,
+                    egui::FontId::new(24.0, eframe::epaint::FontFamily::Proportional),
+                );
+                for _i in 1..10 {
+                    ui.label("");
+                }
+                ui.vertical_centered(|ui|{
+                    ui.heading("Difficulty");
+                    ui.radio_value(&mut self.serbia_map.difficulty, 0.25, "Easy");
+                    ui.radio_value(&mut self.serbia_map.difficulty, 0.5, "Medium");
+                    ui.radio_value(&mut self.serbia_map.difficulty, 0.75, "Hard");
+                    ui.separator();
+                    ui.heading("Max number of turns");
+                    ui.horizontal(|ui| {
+                        for _i in 1..85 {
+                            ui.label("");
+                        }
+                        ui.add(egui::Slider::new(&mut self.serbia_map.max_turns, 10..=50));
+
+                    });
+                    ui.separator();
+                    if ui.button("Confirm").clicked() {
+                        self.settings = false;
+                        self.main_menu = true;
                     }
                 });
             });
@@ -201,17 +244,26 @@ impl eframe::App for MyApp {
                 if self.serbia_map.first_turn {
                     ui.heading("Choose capital city.");
                 }
-                if self.serbia_map.war_phase == 32 {
+                if self.serbia_map.winner != "" {
+                    if self.serbia_map.winner != "Draw" {
+                        ui.heading(format!("The winner is: {}", self.serbia_map.winner));
+                    } else {
+                        ui.heading("It's draw.");
+                    }
+                    if ui.button("Exit").clicked() {
+                        ui.ctx().send_viewport_cmd(egui::ViewportCommand::Close);
+                    }
+                } else if self.serbia_map.war_phase == 32 {
                     ui.heading("War phase");
                 } else {
                     ui.heading("Click on the free territory to claim it.");
                 }
                 if self.serbia_map.bot_attacked {
-                    ui.heading(format!("The bot has attacked the {}", self.serbia_map.attacked_city));
+                    ui.heading(format!("The bot has attacked {}", self.serbia_map.attacked_city));
                     if ui.button("Confirm").clicked() {
                         self.serbia_map.show_question = true;
                     }
-                } else if self.serbia_map.war_phase == 32 {
+                } else if self.serbia_map.war_phase == 32 && self.serbia_map.winner == "" {
                     ui.heading("Click on a neighboring cities to attack.");
                 }
                 self.serbia_map.draw(ui, Pos2::new(panel_size.x, panel_size.y));
@@ -225,18 +277,24 @@ impl eframe::App for MyApp {
                     }
                     ui.style_mut().text_styles.insert(
                         egui::TextStyle::Button,
-                        egui::FontId::new(20.0, eframe::epaint::FontFamily::Proportional),
+                        egui::FontId::new(24.0, eframe::epaint::FontFamily::Proportional),
                     );
                     ui.style_mut().text_styles.insert(
                         egui::TextStyle::Heading,
-                        egui::FontId::new(25.0, eframe::epaint::FontFamily::Proportional),
+                        egui::FontId::new(24.0, eframe::epaint::FontFamily::Proportional),
                     );
                     if self.confirm {
                         if self.player_correct && self.bot_correct {
                             ui.heading("Both you and Bot answered correctly");
                         } else if self.player_correct {
+                            if self.serbia_map.bot_attacked {
+                                self.serbia_map.player_defended += 1;
+                            }
                             ui.heading("You answered correctly, bot didn't");
                         } else if self.bot_correct {
+                            if !self.serbia_map.bot_attacked {
+                                self.serbia_map.bot_defended += 1;
+                            }
                             ui.heading("Bot answered correctly, you didn't");
                         } else {
                             ui.heading("Both you and Bot answered incorrectly");
@@ -250,34 +308,42 @@ impl eframe::App for MyApp {
                                 } else {
                                     self.serbia_map.player = false;
                                 }
+                                self.serbia_map.num_turns += 1;
                             }
                             self.confirm = false;
-                            self.test_question += 1;
+                            self.test_question += 1; // novo pitanje
+                            self.question_generated = false;
                         }
                     } else {
+                        if !self.question_generated {
+                            let mut rng = rand::thread_rng();
+                            self.correct_answer = rng.gen_range(1..5);
+                            self.question_generated = true;
+                            println!("{}", self.correct_answer);
+                        }
                         ui.heading(format!("The question placeholder {}", self.test_question));
                         if ui.button("Option 1").clicked() {
-                            self.bot_correct = self.serbia_map.state_change(false);
+                            self.bot_correct = self.serbia_map.state_change(self.correct_answer == 1);
                             self.confirm = true;
-                            self.player_correct = false;
+                            self.player_correct = self.correct_answer == 1;
                             //self.question_generated = false;
                         }
                         if ui.button("Option 2").clicked() {
-                            self.bot_correct = self.serbia_map.state_change(true);
+                            self.bot_correct = self.serbia_map.state_change(self.correct_answer == 2);
                             self.confirm = true;
-                            self.player_correct = true;
+                            self.player_correct = self.correct_answer == 2;
                             //self.question_generated = false;
                         }
                         if ui.button("Option 3").clicked() {
-                            self.bot_correct = self.serbia_map.state_change(false);
+                            self.bot_correct = self.serbia_map.state_change(self.correct_answer == 3);
                             self.confirm = true;
-                            self.player_correct = false;
+                            self.player_correct = self.correct_answer == 3;
                             //self.question_generated = false;
                         }
                         if ui.button("Option 4").clicked() {
-                            self.bot_correct = self.serbia_map.state_change(false);
+                            self.bot_correct = self.serbia_map.state_change(self.correct_answer == 4);
                             self.confirm = true;
-                            self.player_correct = false;
+                            self.player_correct = self.correct_answer == 4;
                             //self.question_generated = false;
                         }
                     }
