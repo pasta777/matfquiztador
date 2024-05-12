@@ -70,7 +70,7 @@ Ukoliko bi i u tom slučaju pobednik bio neodređen, svi igrači igraju dodatnu 
 * Vezati pitanja za UI, nasumično prikazivati odgovore na pitanja. (Miloš) DONE
 * Srediti prozor, i sam izgled igre. (Stepan) DONE
 * Odlučiti se dodavanje minimalističkog AI igrača ili fokusiranje na igru za više igrača i implementirati odabrano. (Stepan) DONE
-* Uraditi reviziju koda, pronaći bolja rešenja na neefikasne stvari i jednostavno poboljšati projekat (Mihajlo) ACOMPLISHED
+* Uraditi reviziju koda, pronaći bolja rešenja na neefikasne stvari i jednostavno poboljšati projekat (Mihajlo) ACCOMPLISHED
 * Testirati igru, pronaći bagove i popraviti ih (Svi) IN PROGRESS
 
 Ukoliko želite da preuzmete nešto sa ove liste, upišite vaše ime npr. (Stojan) pored stavke kojom želite vi da se bavite. Nakon finaliziranje te stavke stavite #DONE pored stavke ukoliko ste zadovoljni obradom.
