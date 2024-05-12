@@ -117,7 +117,7 @@ fn fill_question_vector(file_path: &str) -> Vec<Question> {
 
 fn question_end(question_generated: &mut bool, answers_randomized: &mut Vec<(String, bool)>) {
     *question_generated = false;
-    answers_randomized.clear();
+    *answers_randomized = Vec::new();
 }
 
 impl eframe::App for MyApp {
@@ -271,6 +271,7 @@ impl eframe::App for MyApp {
                         }
                     } else {
                         if !self.question_generated {
+                            self.incorrect_answers = Vec::new();
                             let mut rng = rand::thread_rng();
                             let random_number = rng.gen_range(0..self.question_vector.len());
                             generate_question(random_number,&mut self.question_text, &mut self.correct_answer, &mut self.incorrect_answers, &mut self.question_vector);
@@ -283,25 +284,26 @@ impl eframe::App for MyApp {
                             println!("{}", self.correct_answer);
                         }
                         ui.heading(self.question_text.clone());
-                        if ui.button(&self.answers_randomized[0].0).clicked() {
+                        let ar_cloned = self.answers_randomized.clone();
+                        if ui.button(&ar_cloned[0].0).clicked() {
                             self.bot_correct = self.serbia_map.state_change(self.answers_randomized[0].1);
                             self.confirm = true;
                             self.player_correct = self.answers_randomized[0].1;
                             question_end(&mut self.question_generated, &mut self.answers_randomized);
                         }
-                        if ui.button(&self.answers_randomized[1].0).clicked() {
+                        if ui.button(&ar_cloned[1].0).clicked() {
                             self.bot_correct = self.serbia_map.state_change(self.answers_randomized[1].1);
                             self.confirm = true;
                             self.player_correct = self.answers_randomized[1].1;
                             question_end(&mut self.question_generated, &mut self.answers_randomized);
                         }
-                        if ui.button(&self.answers_randomized[2].0).clicked() {
+                        if ui.button(&ar_cloned[2].0).clicked() {
                             self.bot_correct = self.serbia_map.state_change(self.answers_randomized[2].1);
                             self.confirm = true;
                             self.player_correct = self.answers_randomized[2].1;
                             question_end(&mut self.question_generated, &mut self.answers_randomized);
                         }
-                        if ui.button(&self.answers_randomized[3].0).clicked() {
+                        if ui.button(&ar_cloned[3].0).clicked() {
                             self.bot_correct = self.serbia_map.state_change(self.answers_randomized[3].1);
                             self.confirm = true;
                             self.player_correct = self.answers_randomized[3].1;
