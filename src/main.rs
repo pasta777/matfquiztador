@@ -1,11 +1,12 @@
 mod map;
 
+use std::fs;
 use eframe::{egui};
 use egui::{Align, Layout, Pos2};
 use htmlentity::entity::decode;
 use serde::Deserialize;
-use tokio::runtime;
 use htmlentity::entity::ICodedDataTrait;
+use rand::prelude::SliceRandom;
 use rand::Rng;
 use crate::map::SerbiaMap;
 
@@ -26,13 +27,6 @@ fn main() -> Result<(), eframe::Error> {
         }),
     )
 }
-/*
-#[derive(Debug,Deserialize)]
-struct SessionToken {
-    response_code: i32,
-    response_message: String,
-    token: String
-}
 
 #[derive(Debug,Deserialize)]
 struct Question {
@@ -46,12 +40,10 @@ struct Question {
 
 #[derive(Debug,Deserialize)]
 struct QuestionsBatch {
-    response_code: i32,
     results: Vec<Question>
 }
-*/
+
 struct MyApp {
-    //rt: runtime::Runtime, <- koristim za pravljenje asinhronih blokova
     show_confirmation_dialog: bool,
     main_menu: bool,
     playing: bool,
@@ -62,20 +54,15 @@ struct MyApp {
     player_correct: bool,
     settings: bool,
     question_generated: bool,
-    correct_answer: u8,
-    /* Ovo je sve rezervisano za pitanja
-    session_token_url: String,
     question_vector: Vec<Question>,
-    question_generated: bool,
     question_text: String,
     correct_answer: String,
-    incorrect_answers: Vec<String>
-    */
+    incorrect_answers: Vec<String>,
+    answers_randomized: Vec<(String,bool)>
 }
 impl MyApp {
     fn new() -> Self {
         Self {
-            //rt: runtime::Builder::new_multi_thread().enable_all().build().unwrap(),
             show_confirmation_dialog: false,
             main_menu: true,
             playing: false,
@@ -86,83 +73,51 @@ impl MyApp {
             player_correct: false,
             settings: false,
             question_generated: false,
-            correct_answer: 1,
-            /*
-            session_token_url: String::new(),
-            question_vector: Vec::new(),
-            question_generated: false,
+            question_vector: fill_question_vector("src/pitanja.json"),
             question_text: String::new(),
             correct_answer: String::new(),
-            incorrect_answers: Vec::new()
-            */
+            incorrect_answers: Vec::new(),
+            answers_randomized: Vec::new()
         }
     }
-    /*async fn create_session_token() -> Result<String, Box<dyn std::error::Error + 'static>> {
-        let mut response = reqwest::get("https://opentdb.com/api_token.php?command=request").await?;
+}
 
-        // Check if the request was successful (status code 200)
-        if response.status().is_success() {
-            // Read the response body as text
-            let body = response.text().await?;
-            let data: SessionToken = serde_json::from_str(&body)?;
-            let session_token_real = data.token;
-
-            // Build the URL with the session token
-            let url: &str = "https://opentdb.com/api.php?amount=50&type=multiple&token=";
-            let combined: String = format!("{}{}", url, session_token_real);
-            Ok(combined)
-        } else {
-            println!("Request failed with status code: {}", response.status());
-            Err("Request failed".into())
-        }
-    }
-    fn spawn_session_token(&mut self, stu: &mut String) {
-        self.rt.spawn(async move {
-            match Self::create_session_token().await {
-                Ok(session_token) => *stu = session_token.clone(),
-                Err(e) => println!("Error occured: {}", e.to_string())
-            }
-        });
-    }
-    fn generate_question(index: usize, question_text: &mut String, correct_answer_text: &mut String,
-                         incorrect_answers_text: &mut Vec<String>, question_vector: &mut Vec<Question>) {
-        let pulled_question = decode(question_vector[index].question.as_ref()).to_string();
-        let pulled_correct = decode(question_vector[index].correct_answer.as_ref()).to_string();
-        let pulled_incorrects = question_vector[index].incorrect_answers.clone();
-        for ia in pulled_incorrects {
-            let ignus_fatus = decode(ia.as_ref()).to_string();
-            match ignus_fatus {
-                Ok(decoded_incorrect) => { incorrect_answers_text.push(decoded_incorrect); },
-                Err(e) => { eprintln!("Decoding Error {}", e); }
-            }
-        }
-        match pulled_question {
-            Ok(decoded_question) => { *question_text = decoded_question; },
+fn generate_question(index: usize, question_text: &mut String, correct_answer_text: &mut String,
+                     incorrect_answers_text: &mut Vec<String>, question_vector: &mut Vec<Question>) {
+    let pulled_question = decode(question_vector[index].question.as_ref()).to_string();
+    let pulled_correct = decode(question_vector[index].correct_answer.as_ref()).to_string();
+    let pulled_incorrects = question_vector[index].incorrect_answers.clone();
+    for ia in pulled_incorrects {
+        let ignus_fatus = decode(ia.as_ref()).to_string();
+        match ignus_fatus {
+            Ok(decoded_incorrect) => { incorrect_answers_text.push(decoded_incorrect); },
             Err(e) => { eprintln!("Decoding Error {}", e); }
         }
-        match pulled_correct {
-            Ok(decoded_correct) => { *correct_answer_text = decoded_correct; },
-            Err(e) => { eprintln!("Decoding Error {}", e); }
-        }
-        question_vector.remove(index);
     }
-    async fn fill_question_vector(session_url: String) -> Result<Vec<Question>, Box<dyn std::error::Error>> {
-        let response = reqwest::get(&session_url).await?;
-
-        if response.status().is_success() {
-            let body = response.text().await?;
-            let data: QuestionsBatch = serde_json::from_str(&body)?;
-
-            // Extract the vector of questions from the data
-            let questions_vector = data.results;
-
-            Ok(questions_vector)
-        } else {
-            println!("Request failed with status code: {}", response.status());
-            Err("Request failed".into())
-        }
+    match pulled_question {
+        Ok(decoded_question) => { *question_text = decoded_question; },
+        Err(e) => { eprintln!("Decoding Error {}", e); }
     }
-    */
+    match pulled_correct {
+        Ok(decoded_correct) => { *correct_answer_text = decoded_correct; },
+        Err(e) => { eprintln!("Decoding Error {}", e); }
+    }
+    question_vector.remove(index);
+}
+
+fn fill_question_vector(file_path: &str) -> Vec<Question> {
+    // Read the JSON file
+    let json_str = fs::read_to_string(file_path).unwrap();
+    let question_data: QuestionsBatch = serde_json::from_str(&json_str).unwrap();
+
+    // Parse the JSON string into a vector of questions
+    let questions = question_data.results;
+    return questions;
+}
+
+fn question_end(question_generated: &mut bool, answers_randomized: &mut Vec<(String, bool)>) {
+    *question_generated = false;
+    answers_randomized.clear();
 }
 
 impl eframe::App for MyApp {
@@ -317,34 +272,40 @@ impl eframe::App for MyApp {
                     } else {
                         if !self.question_generated {
                             let mut rng = rand::thread_rng();
-                            self.correct_answer = rng.gen_range(1..5);
+                            let random_number = rng.gen_range(0..self.question_vector.len());
+                            generate_question(random_number,&mut self.question_text, &mut self.correct_answer, &mut self.incorrect_answers, &mut self.question_vector);
+                            self.answers_randomized.push((self.correct_answer.clone(),true));
+                            for ia in &self.incorrect_answers {
+                                self.answers_randomized.push((ia.clone(), false));
+                            }
+                            self.answers_randomized.shuffle(&mut rng);
                             self.question_generated = true;
                             println!("{}", self.correct_answer);
                         }
-                        ui.heading(format!("The question placeholder {}", self.test_question));
-                        if ui.button("Option 1").clicked() {
-                            self.bot_correct = self.serbia_map.state_change(self.correct_answer == 1);
+                        ui.heading(self.question_text.clone());
+                        if ui.button(&self.answers_randomized[0].0).clicked() {
+                            self.bot_correct = self.serbia_map.state_change(self.answers_randomized[0].1);
                             self.confirm = true;
-                            self.player_correct = self.correct_answer == 1;
-                            //self.question_generated = false;
+                            self.player_correct = self.answers_randomized[0].1;
+                            question_end(&mut self.question_generated, &mut self.answers_randomized);
                         }
-                        if ui.button("Option 2").clicked() {
-                            self.bot_correct = self.serbia_map.state_change(self.correct_answer == 2);
+                        if ui.button(&self.answers_randomized[1].0).clicked() {
+                            self.bot_correct = self.serbia_map.state_change(self.answers_randomized[1].1);
                             self.confirm = true;
-                            self.player_correct = self.correct_answer == 2;
-                            //self.question_generated = false;
+                            self.player_correct = self.answers_randomized[1].1;
+                            question_end(&mut self.question_generated, &mut self.answers_randomized);
                         }
-                        if ui.button("Option 3").clicked() {
-                            self.bot_correct = self.serbia_map.state_change(self.correct_answer == 3);
+                        if ui.button(&self.answers_randomized[2].0).clicked() {
+                            self.bot_correct = self.serbia_map.state_change(self.answers_randomized[2].1);
                             self.confirm = true;
-                            self.player_correct = self.correct_answer == 3;
-                            //self.question_generated = false;
+                            self.player_correct = self.answers_randomized[2].1;
+                            question_end(&mut self.question_generated, &mut self.answers_randomized);
                         }
-                        if ui.button("Option 4").clicked() {
-                            self.bot_correct = self.serbia_map.state_change(self.correct_answer == 4);
+                        if ui.button(&self.answers_randomized[3].0).clicked() {
+                            self.bot_correct = self.serbia_map.state_change(self.answers_randomized[3].1);
                             self.confirm = true;
-                            self.player_correct = self.correct_answer == 4;
-                            //self.question_generated = false;
+                            self.player_correct = self.answers_randomized[3].1;
+                            question_end(&mut self.question_generated, &mut self.answers_randomized);
                         }
                     }
                 });
