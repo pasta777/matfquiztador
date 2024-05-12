@@ -65,7 +65,7 @@ Ukoliko su je i u tom slučaju pobednik neodređen, svi igrači igraju dodatnu r
 * Implementirati grafički prikaz napada nekog igrača na neku teritoriju, recimo postavljanja barjaka tog igrača na tu teritoriju kao deklaraciju napada. (Stepan) DONE
 * Implementirati odabir broja poteza u fazi ratovanja na početku, odnosno broj poteza posle kojih će igra po difoltu biti gotova (Stepan) DONE
 * Implementirati sistem, bilo eksterni ili interni, kojim će se pamtiti broj uspešnih odbrana teritorije nekog igrača. (Stepan) DONE
-* Implementirati sudden death rundu u slučaju nerešene partije po svim parametrima (Stepan)
+* Implementirati sudden death rundu u slučaju nerešene partije po svim parametrima (Stepan) CANCELED
 * Implementirati bazu sa pitanjima, tako da se pitanja u bilo kom trenutku ne ponavljaju u toku igre. (Miloš) DONE
 * Srediti prozor, i sam izgled igre. (Stepan) DONE
 * Odlučiti se dodavanje minimalističkog AI igrača ili fokusiranje na igru za više igrača i implementirati odabrano. (Stepan) DONE
