@@ -552,12 +552,22 @@ impl SerbiaMap {
                             if self.first_turn { // PRVI POTEZ
                                 self.city_states.insert(*name, CityState::Bot);
                                 self.war_phase = self.war_phase + 1;
-                                self.is_capital.insert(*name, true);
-                                self.first_turn = false;
-                                for neighbor in &city.connected_to {
-                                    if self.city_states[*neighbor] != CityState::Bot && self.city_states[*neighbor] != CityState::Player {
-                                        self.eligible_cities_b.insert(*neighbor);
+                                let mut player_capital = "";
+                                for (n, b) in &self.is_capital {
+                                    if *b {
+                                        player_capital = *n;
                                     }
+                                }
+                                let forbidden_cities = self.cities[player_capital].connected_to.clone();
+                                if !forbidden_cities.contains(name) {
+                                    self.is_capital.insert(*name, true);
+                                    for neighbor in &city.connected_to {
+                                        if self.city_states[*neighbor] != CityState::Bot && self.city_states[*neighbor] != CityState::Player {
+                                            self.eligible_cities_b.insert(*neighbor);
+                                        }
+                                    }
+                                    self.first_turn = false;
+                                    self.player = true;
                                 }
                             } else {
                                 self.city_states.insert(*name, CityState::Bot);
@@ -569,8 +579,8 @@ impl SerbiaMap {
                                 }
                                 self.eligible_cities_p.remove(*name);
                                 self.eligible_cities_b.remove(*name);
+                                self.player = true;
                             }
-                            self.player = true;
                             //println!("nema {}", self.eligible_cities_b.len());
                         }
                     } else { // IMA SLOBODNIH POLJA
