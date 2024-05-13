@@ -74,7 +74,7 @@ impl MyApp {
             player_correct: false,
             settings: false,
             question_generated: false,
-            question_vector: fill_question_vector("src/pitanja.json"),
+            question_vector: fill_question_vector("pitanja.json"),
             question_text: String::new(),
             correct_answer: String::new(),
             incorrect_answers: Vec::new(),
