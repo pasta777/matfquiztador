@@ -1,8 +1,9 @@
 # <p align="center" style="font-size:85px;">MATFQUIZDATOR</p>
 
 An application/game based on the popular mobile game Triviador, otherwise known as Conqueror, Conquistador, etc.
-![image](https://github.com/pasta777/matfquiztador/assets/146671691/1cc52bd4-2149-4dcd-ba2e-ac80383e36b2)
-
+<div style="text-align:center;">
+    ![image](https://github.com/pasta777/matfquiztador/assets/146671691/1cc52bd4-2149-4dcd-ba2e-ac80383e36b2)
+</div>
 
 # GAME RULES
 
