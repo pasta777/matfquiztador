@@ -1,4 +1,4 @@
-# MATF PP PROJEKAT
+## MATF PP PROJEKAT
 
 Projekat iz kursa Programske Paradigme na Matematičkom fakultetu u Beogradu.
 Učesnici:
