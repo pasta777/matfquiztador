@@ -1,14 +1,10 @@
-## MATF PP PROJEKAT
+# <p align="center" style="font-size:85px;">MATFQUIZDATOR</p>
 
-Projekat iz kursa Programske Paradigme na Matematičkom fakultetu u Beogradu.
-Učesnici:
-* Stepan Ignjatović
-* Mihajlo Trifunović
-* Miloš Radovanović
+An application/game based on the popular mobile game Triviador, otherwise known as Conqueror, Conquistador, etc.
+![image](https://github.com/pasta777/matfquiztador/assets/146671691/1cc52bd4-2149-4dcd-ba2e-ac80383e36b2)
 
-# MATFQUIZDATOR
 
-Tema i cilj projekta je aplikacija/igra bazirana na popularnoj mobilnoj igri Triviador, poznatoj i pod imenima Osvajač, Konkvistador, ...
+# GAME RULES
 
 Igra se igra u više igrača, gde svaki igrač na početku nad datom mapom bira gde želi da postavi svoj glavni grad.
 
@@ -53,6 +49,14 @@ Ukoliko više igrača ima isti broj teritorija, pobednik je onaj sa najviše usp
 
 Ukoliko bi i u tom slučaju pobednik bio neodređen, svi igrači igraju dodatnu rundu sa pitanjima, dok se ne odluči pobednik.
 
+
+<p align="center">#AUTHORS</p>
+
+Project for the course Programming Paradigms 3I of the Mathematical faculty, University of Belgrade.
+Contributors:
+* Stepan Ignjatović
+* Mihajlo Trifunović
+* Miloš Radovanović
 
 # TO-DO LIST
 
