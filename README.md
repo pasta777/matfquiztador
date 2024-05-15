@@ -74,21 +74,21 @@ Contributors:
 
 # TO-DO LIST
 
-* Smisliti plan, ispisati sva pravila i raspodeliti taskove (Miloš) DONE
-* Implementirati sve gradove i grane povezanosti između njih (Mihajlo) DONE
-* Implementirati etapu postavljanja glavnih gradova na početku (Mihajlo) DONE
-* Implementirati grafički prikaz slobodnih, osvojenih kao i teritorija na kojima je glavni grad. (Stepan) DONE
-* Implementirati etapu biranja slobodnih teritorija (Stepan) DONE
-* Implementirati etapu ratovanja (Stepan) DONE
-* Implementirati grafički prikaz napada nekog igrača na neku teritoriju, recimo postavljanja barjaka tog igrača na tu teritoriju kao deklaraciju napada. (Stepan) DONE
-* Implementirati odabir broja poteza u fazi ratovanja na početku, odnosno broj poteza posle kojih će igra po difoltu biti gotova (Stepan) DONE
-* Implementirati sistem, bilo eksterni ili interni, kojim će se pamtiti broj uspešnih odbrana teritorije nekog igrača. (Stepan) DONE
-* Implementirati sudden death rundu u slučaju nerešene partije po svim parametrima (Stepan) CANCELED
-* Implementirati bazu sa pitanjima, tako da se pitanja u bilo kom trenutku ne ponavljaju u toku igre. (Miloš) DONE
-* Vezati pitanja za UI, nasumično prikazivati odgovore na pitanja. (Miloš) DONE
-* Srediti prozor, i sam izgled igre. (Stepan) DONE
-* Odlučiti se dodavanje minimalističkog AI igrača ili fokusiranje na igru za više igrača i implementirati odabrano. (Stepan) DONE
-* Uraditi reviziju koda, pronaći bolja rešenja na neefikasne stvari i jednostavno poboljšati projekat (Mihajlo) ACCOMPLISHED
-* Testirati igru, pronaći bagove i popraviti ih (Svi) IN PROGRESS
+* Come up with a plan, write down all the rules, and distribute tasks (Miloš) DONE
+* Implement all cities and connections between them (Mihajlo) DONE
+* Implement the stage of placing the main cities at the beginning (Mihajlo) DONE
+* Implement graphical representation of free, conquered, and capital territory (Stepan) DONE
+* Implement the stage of choosing free territories (Stepan) DONE
+* Implement the warfare stage (Stepan) DONE
+* Implement graphical representation of a player's attack on a territory, such as placing the player's flag on that territory as a declaration of attack (Stepan) DONE
+* Implement choosing the number of moves in the warfare phase at the beginning, i.e., the number of moves after which the game will default to ending (Stepan) DONE
+* Implement a system, whether external or internal, to keep track of the number of successful defenses of a player's territory (Stepan) DONE
+* Implement sudden death round in case of a tie by all parameters (Stepan) CANCELED
+* Implement a question database so that questions are not repeated during the game (Miloš) DONE
+* Tie questions to UI, randomly display answers to questions (Miloš) DONE
+* Tidy up the window and the overall look of the game (Stepan) DONE
+* Decide on adding a minimalist AI player or focusing on multiplayer and implement the chosen option (Stepan) DONE
+* Conduct code review, find better solutions for inefficient parts, and generally improve the project (Mihajlo) ACCOMPLISHED
+* Test the game, find bugs, and fix them (All) IN PROGRESS
 
-Ukoliko želite da preuzmete nešto sa ove liste, upišite vaše ime npr. (Stojan) pored stavke kojom želite vi da se bavite. Nakon finaliziranje te stavke stavite #DONE pored stavke ukoliko ste zadovoljni obradom.
+If you want to take on something from this list, write your name next to the item you want to work on. After completing that task, put #DONE next to it if you're satisfied with the processing.
