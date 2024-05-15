@@ -1,4 +1,4 @@
-<p align="center" font-size=78>MATFQUIZDATOR</p>
+<p align="center" style="font-size:0.5em;">MATFQUIZDATOR</p>
 
 An application/game based on the popular mobile game Triviador, otherwise known as Conqueror, Conquistador, etc.
 
