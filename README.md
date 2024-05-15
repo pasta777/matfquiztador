@@ -7,51 +7,51 @@ An application/game based on the popular mobile game Triviador, otherwise known 
 
 # GAME RULES
 
-Igra se igra u više igrača, gde svaki igrač na početku nad datom mapom bira gde želi da postavi svoj glavni grad.
+The game is played with multiple players, where each player selects the location for their capital city on a given map at the beginning.
 
-Redosled odabira mesta za glavni grad je nasumičan.
+The order of selecting the capital city locations is random.
 
-Glavni gradovi ne smeju biti jedan pored drugoga.
+Capital cities cannot be adjacent to each other.
 
-Nakon odabira mesta za glavni grad prelazi se u fazu odabira teritorija gde svaki igrač istim redom kao što su birani gradovi bira po jednu slobodnu teritoriju/grad koju će zauzeti a koja je povezana sa glavnim gradom ili nekom prethodno zauzetom teritorijom/gradom.
+After selecting the locations for the capital cities, the game proceeds to the phase of selecting territories, where each player, in the same order as the selection of cities, chooses one free territory/city connected to their capital city or to any previously occupied territory/city.
 
-Ukoliko igrač nema nijednu slobodnu teritoriju u dodiru sa svojim teritorijama, može da odabere BILO KOJU drugu slobodnu teritoriju na mapi i da je preuzme.
+If a player does not have any free territories adjacent to their own territories, they can choose ANY other free territory on the map to occupy.
 
-Nakon što nema više slobodnih teritorija, prelazi se u fazu ratovanja.
+Once there are no more free territories, the game enters the phase of warfare.
 
-Faza ratovanja je poslednja faza igre, gde igrači međusobno pokušavaju da otmu jedni drugima teritoriju.
+The warfare phase is the final phase of the game, where players attempt to capture territories from each other.
 
-Prethodno ustanovljenim redosledom igrači biraju da napadnu neku teritoriju koja se dodiruje sa njihovom.
+Following the established order, players choose to attack a territory adjacent to theirs.
 
-Igrač koji napada i igrač koji se brani odgovaraju na isto pitanje.
+The attacking player and the defending player answer the same question.
 
-Ukoliko igrač koji napada odgovori tačno a igrač koji brani teritoriju pogreši, napad je uspešan i teritorija prelazi u ruke napadača.
+If the attacking player answers correctly and the defending player answers incorrectly, the attack is successful, and the territory falls into the hands of the attacker.
 
-Ukoliko se desi obratno, gde napadač pogreši a odbrana odgovori tačno, napad je neuspešan i teritorija ostaje u rukama odbrane.
+If the situation is reversed, where the attacker answers incorrectly and the defender answers correctly, the attack fails, and the territory remains with the defender.
 
-Ukoliko oba igrača odgovore tačno, igračima se postavlja novo pitanje sve dok jedan igrač ne pogreši. (SUBJECT TO CHANGE)
+If both players answer correctly, a new question is asked to the players until one player makes a mistake. (SUBJECT TO CHANGE)
 
-Ukoliko se napada glavni grad, odbrana mora da zakaže tri puta da bi glavni grad bio osvojen.
+If the capital city is attacked, the defense must succeed three times for the capital city to be captured.
 
-Ukoliko je prvi napad na glavni grad bio uspešan, odvija se odmah i drugi i tako dok se ili grad ne odbrani ili grad ne osvoji.
+If the first attack on the capital city is successful, subsequent attacks happen immediately, and so on until the city is either defended or captured.
 
-Pri osvajanju glavnog grada nekog igrača taj igrač je eliminisan iz igre i sve njegove teritorije prelaze u posed osvajača tog glavnog grada.
+Upon capturing the capital city of a player, that player is eliminated from the game, and all their territories become the possessions of the conqueror of that capital city.
 
-Igrač tokom svog poteza umesto da napadne može da bira da osigura/popravi svoj glavni grad tako što će odgovoriti tačno na pitanje, u slučaju uspeha grad dobija +1 život, u slučaju neuspeha potez tog igrača se završava bez promene.
-
-
-Igra se završava:
-a) ako je preostao samo jedan igrač
-b) posle određenog broja poteza (podesivo na početku partije)
-
-Pobednik igre je igrač koji je jedini preostao ili igrač koji posle određenog broja poteza ima najviše teritorija pod svojom kontrolom. 
-
-Ukoliko više igrača ima isti broj teritorija, pobednik je onaj sa najviše uspešnih odbrana.
-
-Ukoliko bi i u tom slučaju pobednik bio neodređen, svi igrači igraju dodatnu rundu sa pitanjima, dok se ne odluči pobednik.
+During their turn, a player can choose to secure/fortify their capital city by correctly answering a question. If successful, the city gains +1 life. If unsuccessful, the player's turn ends without any change.
 
 
-<p align="center">#AUTHORS</p>
+The game ends:
+a) if only one player remains
+b) after a certain number of rounds (adjustable before the beginning of the game)
+
+The winner of the game is the player who is the last one remaining, or the player who, after a certain number of rounds, has the most territories under their control.
+
+If multiple players have the same number of territories, the winner is the one with the most successful defenses.
+
+If, in that case, the winner remains undetermined, all players engage in an additional round with questions until a winner is decided.
+
+
+# <p align="center" style="font-size:72px;">AUTHORS</p>
 
 Project for the course Programming Paradigms 3I of the Mathematical faculty, University of Belgrade.
 Contributors:
