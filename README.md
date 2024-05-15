@@ -13,15 +13,21 @@ The order of selecting the capital city locations is random.
 
 Capital cities cannot be adjacent to each other.
 
-After selecting the locations for the capital cities, the game proceeds to the phase of selecting territories, where each player, in the same order as the selection of cities, chooses one free territory/city connected to their capital city or to any previously occupied territory/city.
+
+
+
+After selecting the locations for the capital cities, the game proceeds to the phase of selecting territories, where each player, in the same order as in the selection of cities, chooses one free territory/city connected to their capital city or to any previously occupied territories/cities.
 
 If a player does not have any free territories adjacent to their own territories, they can choose ANY other free territory on the map to occupy.
+
+
+
 
 Once there are no more free territories, the game enters the phase of warfare.
 
 The warfare phase is the final phase of the game, where players attempt to capture territories from each other.
 
-Following the established order, players choose to attack a territory adjacent to theirs.
+Following the established order, players choose to attack a territory adjacent to one of theirs.
 
 The attacking player and the defending player answer the same question.
 
@@ -31,13 +37,14 @@ If the situation is reversed, where the attacker answers incorrectly and the def
 
 If both players answer correctly, a new question is asked to the players until one player makes a mistake. (SUBJECT TO CHANGE)
 
-If the capital city is attacked, the defense must succeed three times for the capital city to be captured.
+If the capital city is attacked, the attack must succeed three times for the capital city to be captured.
 
 If the first attack on the capital city is successful, subsequent attacks happen immediately, and so on until the city is either defended or captured.
 
 Upon capturing the capital city of a player, that player is eliminated from the game, and all their territories become the possessions of the conqueror of that capital city.
 
 During their turn, a player can choose to secure/fortify their capital city by correctly answering a question. If successful, the city gains +1 life. If unsuccessful, the player's turn ends without any change.
+
 
 
 The game ends:
@@ -49,6 +56,11 @@ The winner of the game is the player who is the last one remaining, or the playe
 If multiple players have the same number of territories, the winner is the one with the most successful defenses.
 
 If, in that case, the winner remains undetermined, all players engage in an additional round with questions until a winner is decided.
+
+
+# CONTROLS
+
+  LMB is used for everything.
 
 
 # <p align="center" style="font-size:72px;">AUTHORS</p>
