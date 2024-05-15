@@ -2,7 +2,7 @@
 
 An application/game based on the popular mobile game Triviador, otherwise known as Conqueror, Conquistador, etc.
 
-# <p align="center" style="font-size:85px;">GAME RULES</p>
+# <p align="center" style="font-size:72px;">GAME RULES</p>
 
 The game is played with multiple players, where each player selects the location for their capital city on a given map at the beginning.
 
@@ -55,7 +55,7 @@ If multiple players have the same number of territories, the winner is the one w
 If, in that case, the winner remains undetermined, all players engage in an additional round with questions until a winner is decided.
 
 
-# <p align="center" style="font-size:85px;">CONTROLS</p>
+# <p align="center" style="font-size:72px;">CONTROLS</p>
 
   LMB is used for everything.
 
