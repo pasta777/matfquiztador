@@ -133,52 +133,51 @@ impl SerbiaMap {
             }
         }
         return bot;
-        // rust got me tweakin'
     }
     pub fn new() -> Self {
         let mut cities = HashMap::new();
         let mut city_states = HashMap::new();
         let mut is_capital = HashMap::new();
 
-        let mut from_belgrade = Vec::new(); //done
-        let mut from_pancevo = Vec::new(); //done
-        let mut from_sabac = Vec::new(); //done
-        let mut from_valjevo = Vec::new(); //done
-        let mut from_sremskamitrovica = Vec::new(); //done
-        let mut from_smederevo = Vec::new(); //done
-        let mut from_zrenjanin = Vec::new(); //done
-        let mut from_arandjelovac = Vec::new(); //done
-        let mut from_novisad = Vec::new(); //done
-        let mut from_sombor = Vec::new(); //done
-        let mut from_subotica = Vec::new(); //done
-        let mut from_kikinda = Vec::new(); //done
-        let mut from_cacak = Vec::new(); //done
-        let mut from_kraljevo = Vec::new(); //done
-        let mut from_pozarevac = Vec::new(); //done
-        let mut from_kragujevac = Vec::new(); //done
-        let mut from_jagodina = Vec::new(); //done
-        let mut from_bor = Vec::new(); //done
-        let mut from_zajecar = Vec::new(); //done
-        let mut from_uzice = Vec::new(); //done
-        let mut from_krusevac = Vec::new(); //done
-        let mut from_nis = Vec::new(); //done
-        let mut from_prokuplje = Vec::new(); //done
-        let mut from_pirot = Vec::new(); //done
-        let mut from_leskovac = Vec::new(); //done
-        let mut from_vranje = Vec::new(); //done
-        let mut from_pristina = Vec::new(); //done
-        let mut from_pec = Vec::new(); //done
-        let mut from_prizren = Vec::new(); //done
-        let mut from_kosovskamitrovica = Vec::new(); //done
+        let mut from_belgrade = Vec::new();
+        let mut from_pancevo = Vec::new();
+        let mut from_sabac = Vec::new();
+        let mut from_valjevo = Vec::new();
+        let mut from_sremskamitrovica = Vec::new();
+        let mut from_smederevo = Vec::new();
+        let mut from_zrenjanin = Vec::new();
+        let mut from_arandjelovac = Vec::new();
+        let mut from_novisad = Vec::new();
+        let mut from_sombor = Vec::new();
+        let mut from_subotica = Vec::new();
+        let mut from_kikinda = Vec::new();
+        let mut from_cacak = Vec::new();
+        let mut from_kraljevo = Vec::new();
+        let mut from_pozarevac = Vec::new();
+        let mut from_kragujevac = Vec::new();
+        let mut from_jagodina = Vec::new();
+        let mut from_bor = Vec::new();
+        let mut from_zajecar = Vec::new();
+        let mut from_uzice = Vec::new();
+        let mut from_krusevac = Vec::new();
+        let mut from_nis = Vec::new();
+        let mut from_prokuplje = Vec::new();
+        let mut from_pirot = Vec::new();
+        let mut from_leskovac = Vec::new();
+        let mut from_vranje = Vec::new();
+        let mut from_pristina = Vec::new();
+        let mut from_pec = Vec::new();
+        let mut from_prizren = Vec::new();
+        let mut from_kosovskamitrovica = Vec::new();
         let mut from_gnjilane = Vec::new();
         let mut from_novipazar = Vec::new();
 
-        from_belgrade.push("Pancevo"); // Beograd, Smederevo, Zrenjenin
-        from_belgrade.push("Sabac"); // Beograd, Sremska Mitrovica, Valjevo
-        from_belgrade.push("Valjevo"); // Beograd, Cacak, Sabac, Arandjelovac
-        from_belgrade.push("Sremska Mitrovica"); // Beograd, Novi Sad,Sabac, Sombor
-        from_belgrade.push("Smederevo"); // Beograd, Pozarevac, Arandjelovac, Pancevo Velika Plana
-        from_belgrade.push("Arandjelovac"); // Valjevo, Beograd, Cacak, Kragujevac, Velika Plana
+        from_belgrade.push("Pancevo");
+        from_belgrade.push("Sabac");
+        from_belgrade.push("Valjevo");
+        from_belgrade.push("Sremska Mitrovica");
+        from_belgrade.push("Smederevo");
+        from_belgrade.push("Arandjelovac");
         from_belgrade.push("Novi Sad");
 
         from_pancevo.push("Belgrade");
@@ -217,10 +216,10 @@ impl SerbiaMap {
         from_arandjelovac.push("Smederevo");
         //from_arandjelovac.push("Velika Plana");
 
-        from_novisad.push("Sremska Mitrovica"); //-
-        from_novisad.push("Zrenjanin"); //-
-        from_novisad.push("Sombor"); // Novi Sad, Subotica
-        from_novisad.push("Subotica"); //Sombor, Novi Sad, Kikinda
+        from_novisad.push("Sremska Mitrovica");
+        from_novisad.push("Zrenjanin");
+        from_novisad.push("Sombor");
+        from_novisad.push("Subotica");
         from_novisad.push("Belgrade");
 
         from_sombor.push("Novi Sad");
@@ -453,10 +452,10 @@ impl SerbiaMap {
                 },
                 (CityState::Player, _, _, _, _) => CityState::Player,
                 (CityState::Bot, _, _, _, _) => CityState::Bot,
-                (_, true, false, true, _) => CityState::Hovered, // Change to hovered if hovered
-                (_, _, true, true, _) => CityState::Clicked, // Change to clicked if clicked
+                (_, true, false, true, _) => CityState::Hovered,
+                (_, _, true, true, _) => CityState::Clicked,
                 (CityState::Hovered, _, _, true, 32) => CityState::Bot,
-                _ => CityState::Default, // Default state otherwise
+                _ => CityState::Default,
             };
             self.city_states.insert(*name, new_state);
 

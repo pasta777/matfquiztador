@@ -30,9 +30,9 @@ fn main() -> Result<(), eframe::Error> {
 
 #[derive(Debug,Deserialize)]
 struct Question {
-    r#type: String,
-    difficulty: String,
-    category: String,
+    //r#type: String,
+    //difficulty: String,
+    //category: String,
     question: String,
     correct_answer: String,
     incorrect_answers: Vec<String>
@@ -48,7 +48,6 @@ struct MyApp {
     main_menu: bool,
     playing: bool,
     serbia_map: SerbiaMap,
-    test_question: u32,
     confirm: bool,
     bot_correct: bool,
     player_correct: bool,
@@ -68,7 +67,6 @@ impl MyApp {
             main_menu: true,
             playing: false,
             serbia_map: SerbiaMap::new(),
-            test_question: 1,
             confirm: false,
             bot_correct: false,
             player_correct: false,
@@ -131,8 +129,6 @@ impl eframe::App for MyApp {
                     egui::FontId::new(24.0, eframe::epaint::FontFamily::Proportional)
                 );
                 ui.with_layout(Layout::top_down(Align::Center).with_cross_align(Align::Center), |ui| {
-                    // HACK ZA CENTRIRANJE TEKSTA NE KORISTITI NIGDE DRUGDE
-                    // TREBA PRONACI BOLJI NACIN ALI TOP DOWN SA CROSS ALIGN NE RADI
                     // NE RADI NI KOMBINOVANJE HORIZONTAL CENTER I VERTICAL CENTER -- KNOWN BUG IN EGUI
                     for _i in 1..20 {
                         ui.label("");
@@ -311,7 +307,6 @@ impl eframe::App for MyApp {
                                 self.serbia_map.num_turns += 1;
                             }
                             self.confirm = false;
-                            self.test_question += 1; // novo pitanje
                             self.question_generated = false;
                         }
                     } else {
