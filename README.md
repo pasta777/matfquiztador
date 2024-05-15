@@ -51,12 +51,12 @@ Pobednik igre je igrač koji je jedini preostao ili igrač koji posle određenog
 
 Ukoliko više igrača ima isti broj teritorija, pobednik je onaj sa najviše uspešnih odbrana.
 
-Ukoliko su je i u tom slučaju pobednik neodređen, svi igrači igraju dodatnu rundu sa pitanjima, dok se ne odluči pobednik.
+Ukoliko bi i u tom slučaju pobednik bio neodređen, svi igrači igraju dodatnu rundu sa pitanjima, dok se ne odluči pobednik.
 
 
 # TO-DO LIST
 
-
+* Smisliti plan, ispisati sva pravila i raspodeliti taskove (Miloš) DONE
 * Implementirati sve gradove i grane povezanosti između njih (Mihajlo) DONE
 * Implementirati etapu postavljanja glavnih gradova na početku (Mihajlo) DONE
 * Implementirati grafički prikaz slobodnih, osvojenih kao i teritorija na kojima je glavni grad. (Stepan) DONE
@@ -67,7 +67,10 @@ Ukoliko su je i u tom slučaju pobednik neodređen, svi igrači igraju dodatnu r
 * Implementirati sistem, bilo eksterni ili interni, kojim će se pamtiti broj uspešnih odbrana teritorije nekog igrača. (Stepan) DONE
 * Implementirati sudden death rundu u slučaju nerešene partije po svim parametrima (Stepan) CANCELED
 * Implementirati bazu sa pitanjima, tako da se pitanja u bilo kom trenutku ne ponavljaju u toku igre. (Miloš) DONE
+* Vezati pitanja za UI, nasumično prikazivati odgovore na pitanja. (Miloš) DONE
 * Srediti prozor, i sam izgled igre. (Stepan) DONE
 * Odlučiti se dodavanje minimalističkog AI igrača ili fokusiranje na igru za više igrača i implementirati odabrano. (Stepan) DONE
+* Uraditi reviziju koda, pronaći bolja rešenja na neefikasne stvari i jednostavno poboljšati projekat (Mihajlo) ACCOMPLISHED
+* Testirati igru, pronaći bagove i popraviti ih (Svi) IN PROGRESS
 
 Ukoliko želite da preuzmete nešto sa ove liste, upišite vaše ime npr. (Stojan) pored stavke kojom želite vi da se bavite. Nakon finaliziranje te stavke stavite #DONE pored stavke ukoliko ste zadovoljni obradom.

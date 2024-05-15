@@ -52,6 +52,11 @@ pub struct SerbiaMap {
     pub bot_defended: u32,
     pub player_capital_health: u8,
     pub bot_capital_health: u8,
+    pub bot_gain_health_try: bool,
+    pub bot_gained_health: bool,
+    pub capital_attacked: bool,
+    pub rng_gen: bool,
+    gain_health: f64,
 }
 
 impl SerbiaMap {
@@ -76,9 +81,9 @@ impl SerbiaMap {
                 if correct && bot {
                 } else if correct {
                     if self.is_capital[*name] {
+                        self.capital_attacked = true;
                         if self.player {
                             self.bot_capital_health -= 1;
-                            *state = CityState::Bot;
                         } else {
                             *state = CityState::Player;
                         }
@@ -89,6 +94,7 @@ impl SerbiaMap {
                             self.is_capital.insert(*name, false);
                         }
                     } else {
+                        self.capital_attacked = false;
                         *state = CityState::Player;
                         self.eligible_cities_p.remove(*name);
                         for c in &self.cities[*name].connected_to {
@@ -97,11 +103,11 @@ impl SerbiaMap {
                     }
                 } else if bot {
                     if self.is_capital[*name] {
+                        self.capital_attacked = true;
                         if self.player {
                             *state = CityState::Bot;
                         } else {
                             self.player_capital_health -= 1;
-                            *state = CityState::Player;
                         }
                         if self.player_capital_health == 0 {
                             *state = CityState::Bot;
@@ -110,6 +116,7 @@ impl SerbiaMap {
                             self.is_capital.insert(*name, false);
                         }
                     } else {
+                        self.capital_attacked = false;
                         *state = CityState::Bot;
                         self.eligible_cities_b.remove(*name);
                         for c in &self.cities[*name].connected_to {
@@ -379,6 +386,11 @@ impl SerbiaMap {
             bot_defended: 0,
             player_capital_health: 3,
             bot_capital_health: 3,
+            bot_gain_health_try: false,
+            bot_gained_health: false,
+            capital_attacked: false,
+            rng_gen: false,
+            gain_health: 1.0,
         }
     }
     pub fn draw(&mut self, ui: &mut Ui, panel_size: Pos2) {
@@ -450,6 +462,11 @@ impl SerbiaMap {
 
             if self.winner != "" {
                 self.player = false;
+                if self.bot_capital_health == 0 {
+                    self.city_states.insert(*name, CityState::Player);
+                } else if self.player_capital_health == 0 {
+                    self.city_states.insert(*name, CityState::Bot);
+                }
             } else if self.num_turns == self.max_turns {
                 self.player = false;
                 let mut player_territories = 0;
@@ -485,20 +502,38 @@ impl SerbiaMap {
                         }
                     }
                 } else {
-                    if state == CityState::Bot {
-                        SerbiaMap::neighbors(city.clone(), CityState::Player, &self.city_states, &mut self.eligible_cities_b);
+                    if !self.rng_gen {
+                        self.gain_health = self.rng.gen();
+                        self.rng_gen = true;
                     }
-                    if !self.bot_attacked {
-                        let mut temp = Vec::new();
-                        for c in &self.eligible_cities_b {
-                            temp.push(*c);
+                    if self.gain_health < 0.04 && self.bot_capital_health < 4 {
+                        self.bot_gain_health_try = true;
+                        let x: f64 = self.rng.gen();
+                        if x < self.difficulty {
+                            self.bot_capital_health += 1;
+                            self.bot_gained_health = true;
+                        } else {
+                            self.bot_gained_health = false;
                         }
-                        if !temp.is_empty() {
-                            temp.shuffle(&mut self.rng);
-                            let x = temp[0];
-                            self.city_states.insert(x, CityState::Clicked);
-                            self.bot_attacked = true;
-                            self.attacked_city = x;
+                        self.player = true;
+                        self.rng_gen = false;
+                        self.num_turns += 1;
+                    } else {
+                        if state == CityState::Bot {
+                            SerbiaMap::neighbors(city.clone(), CityState::Player, &self.city_states, &mut self.eligible_cities_b);
+                        }
+                        if !self.bot_attacked {
+                            let mut temp = Vec::new();
+                            for c in &self.eligible_cities_b {
+                                temp.push(*c);
+                            }
+                            if !temp.is_empty() {
+                                temp.shuffle(&mut self.rng);
+                                let x = temp[0];
+                                self.city_states.insert(x, CityState::Clicked);
+                                self.bot_attacked = true;
+                                self.attacked_city = x;
+                            }
                         }
                     }
                 }
@@ -630,9 +665,9 @@ impl SerbiaMap {
             };
             let custom_name = if self.is_capital[*name] {
                 if self.city_states[*name] == CityState::Player || (!self.player && self.city_states[*name] == CityState::Clicked && self.war_phase == 32) {
-                    format!("{} ({}/3)", city.name, self.player_capital_health)
+                    format!("{} ({}/4)", city.name, self.player_capital_health)
                 } else {
-                    format!("{} ({}/3)", city.name, self.bot_capital_health)
+                    format!("{} ({}/4)", city.name, self.bot_capital_health)
                 }
             } else {
                 String::from(city.name)

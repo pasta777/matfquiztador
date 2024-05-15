@@ -58,7 +58,8 @@ struct MyApp {
     question_text: String,
     correct_answer: String,
     incorrect_answers: Vec<String>,
-    answers_randomized: Vec<(String,bool)>
+    answers_randomized: Vec<(String,bool)>,
+    gain_health_indicator: bool,
 }
 impl MyApp {
     fn new() -> Self {
@@ -73,11 +74,12 @@ impl MyApp {
             player_correct: false,
             settings: false,
             question_generated: false,
-            question_vector: fill_question_vector("resources/questions.json"),
+            question_vector: fill_question_vector("pitanja.json"),
             question_text: String::new(),
             correct_answer: String::new(),
             incorrect_answers: Vec::new(),
-            answers_randomized: Vec::new()
+            answers_randomized: Vec::new(),
+            gain_health_indicator: false,
         }
     }
 }
@@ -210,6 +212,13 @@ impl eframe::App for MyApp {
                     }
                 } else if self.serbia_map.war_phase == 32 {
                     ui.heading("War phase");
+                    if self.serbia_map.bot_gain_health_try {
+                        if self.serbia_map.bot_gained_health {
+                            ui.heading("Bot capital city gained 1 health.");
+                        } else {
+                            ui.heading("Bot tried making capital city gain 1 health but failed");
+                        }
+                    }
                 } else {
                     ui.heading("Click on the free territory to claim it.");
                 }
@@ -219,12 +228,25 @@ impl eframe::App for MyApp {
                         self.serbia_map.show_question = true;
                     }
                 } else if self.serbia_map.war_phase == 32 && self.serbia_map.winner == "" {
-                    ui.heading("Click on a neighboring cities to attack.");
+                    ui.heading("Click on a neighboring cities to attack");
+                    if self.serbia_map.player_capital_health < 4 {
+                        ui.heading("or try to gain health for your capital city.");
+                        if ui.button("+1").clicked() {
+                            if self.serbia_map.player_capital_health < 4 {
+                                self.serbia_map.show_question = true;
+                                self.gain_health_indicator = true;
+                            } else {
+                                ui.heading("Your capital already has maximum health.");
+                            }
+                            self.serbia_map.bot_gain_health_try = false;
+                        }
+                    }
                 }
                 self.serbia_map.draw(ui, Pos2::new(panel_size.x, panel_size.y));
             });
         }
         if self.serbia_map.show_question {
+            self.serbia_map.bot_gain_health_try = false;
             egui::CentralPanel::default().show(ctx, |ui| {
                 ui.vertical_centered_justified(|ui| {
                     for _i in 1..10 {
@@ -239,29 +261,52 @@ impl eframe::App for MyApp {
                         egui::FontId::new(24.0, eframe::epaint::FontFamily::Proportional),
                     );
                     if self.confirm {
-                        if self.player_correct && self.bot_correct {
-                            ui.heading("Both you and Bot answered correctly");
-                        } else if self.player_correct {
-                            if self.serbia_map.bot_attacked {
-                                self.serbia_map.player_defended += 1;
+                        if self.gain_health_indicator {
+                            if self.player_correct {
+                                ui.heading("Your capital gained 1 health!");
+                            } else {
+                                ui.heading("Your answer was incorrect.");
                             }
-                            ui.heading("You answered correctly, bot didn't");
-                        } else if self.bot_correct {
-                            if !self.serbia_map.bot_attacked {
-                                self.serbia_map.bot_defended += 1;
-                            }
-                            ui.heading("Bot answered correctly, you didn't");
                         } else {
-                            ui.heading("Both you and Bot answered incorrectly");
+                            if self.player_correct && self.bot_correct {
+                                ui.heading("Both you and Bot answered correctly");
+                            } else if self.player_correct {
+                                if self.serbia_map.bot_attacked {
+                                    self.serbia_map.player_defended += 1;
+                                }
+                                ui.heading("You answered correctly, bot didn't");
+                            } else if self.bot_correct {
+                                if !self.serbia_map.bot_attacked {
+                                    self.serbia_map.bot_defended += 1;
+                                }
+                                ui.heading("Bot answered correctly, you didn't");
+                            } else {
+                                ui.heading("Both you and Bot answered incorrectly");
+                            }
                         }
                         if ui.button("Confirm").clicked() {
-                            self.serbia_map.show_question = self.player_correct && self.bot_correct;
+                            if self.gain_health_indicator {
+                                self.serbia_map.show_question = false;
+                                self.gain_health_indicator = false;
+                                if self.player_correct {
+                                    self.serbia_map.player_capital_health += 1;
+                                }
+                            } else if self.serbia_map.capital_attacked {
+                                if self.serbia_map.bot_attacked {
+                                    self.serbia_map.show_question = (self.serbia_map.player_capital_health != 0) && self.bot_correct;
+                                } else {
+                                    self.serbia_map.show_question = (self.serbia_map.bot_capital_health != 0) && self.player_correct;
+                                }
+                            } else {
+                                self.serbia_map.show_question = self.player_correct && self.bot_correct;
+                            }
                             if !self.serbia_map.show_question {
                                 if self.serbia_map.bot_attacked {
                                     self.serbia_map.player = true;
                                     self.serbia_map.bot_attacked = false;
                                 } else {
                                     self.serbia_map.player = false;
+                                    self.serbia_map.rng_gen = false;
                                 }
                                 self.serbia_map.num_turns += 1;
                             }
@@ -286,25 +331,33 @@ impl eframe::App for MyApp {
                         ui.heading(self.question_text.clone());
                         let ar_cloned = self.answers_randomized.clone();
                         if ui.button(&ar_cloned[0].0).clicked() {
-                            self.bot_correct = self.serbia_map.state_change(self.answers_randomized[0].1);
+                            if !self.gain_health_indicator {
+                                self.bot_correct = self.serbia_map.state_change(self.answers_randomized[0].1);
+                            }
                             self.confirm = true;
                             self.player_correct = self.answers_randomized[0].1;
                             question_end(&mut self.question_generated, &mut self.answers_randomized);
                         }
                         if ui.button(&ar_cloned[1].0).clicked() {
-                            self.bot_correct = self.serbia_map.state_change(self.answers_randomized[1].1);
+                            if !self.gain_health_indicator {
+                                self.bot_correct = self.serbia_map.state_change(self.answers_randomized[1].1);
+                            }
                             self.confirm = true;
                             self.player_correct = self.answers_randomized[1].1;
                             question_end(&mut self.question_generated, &mut self.answers_randomized);
                         }
                         if ui.button(&ar_cloned[2].0).clicked() {
-                            self.bot_correct = self.serbia_map.state_change(self.answers_randomized[2].1);
+                            if !self.gain_health_indicator {
+                                self.bot_correct = self.serbia_map.state_change(self.answers_randomized[2].1);
+                            }
                             self.confirm = true;
                             self.player_correct = self.answers_randomized[2].1;
                             question_end(&mut self.question_generated, &mut self.answers_randomized);
                         }
                         if ui.button(&ar_cloned[3].0).clicked() {
-                            self.bot_correct = self.serbia_map.state_change(self.answers_randomized[3].1);
+                            if !self.gain_health_indicator {
+                                self.bot_correct = self.serbia_map.state_change(self.answers_randomized[3].1);
+                            }
                             self.confirm = true;
                             self.player_correct = self.answers_randomized[3].1;
                             question_end(&mut self.question_generated, &mut self.answers_randomized);
