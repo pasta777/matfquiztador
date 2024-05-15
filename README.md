@@ -45,6 +45,8 @@ Upon capturing the capital city of a player, that player is eliminated from the 
 During their turn, a player can choose to secure/fortify their capital city by correctly answering a question. If successful, the city gains +1 life. If unsuccessful, the player's turn ends without any change.
 
 <br>
+<br>
+<br>
 
 The game ends:
 a) if only one player remains
