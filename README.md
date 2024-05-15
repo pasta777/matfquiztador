@@ -10,8 +10,9 @@ The order of selecting the capital city locations is random.
 
 Capital cities cannot be adjacent to each other.
 
-
-
+<p align="center">
+  <img src="https://github.com/pasta777/matfquiztador/assets/146671691/18c44e78-f0d3-4095-aa3e-77c322c0ca53" alt="image">
+</p>
 
 After selecting the locations for the capital cities, the game proceeds to the phase of selecting territories, where each player, in the same order as in the selection of cities, chooses one free territory/city connected to their capital city or to any previously occupied territories/cities.
 
