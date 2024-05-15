@@ -18,8 +18,9 @@ After selecting the locations for the capital cities, the game proceeds to the p
 
 If a player does not have any free territories adjacent to their own territories, they can choose ANY other free territory on the map to occupy.
 
-
-
+<p align="center">
+  <img src="https://github.com/pasta777/matfquiztador/assets/146671691/00e895d0-159d-4ea5-b408-455667efcb34" alt="image">
+</p>
 
 Once there are no more free territories, the game enters the phase of warfare.
 
