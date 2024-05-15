@@ -74,21 +74,21 @@ Contributors:
 
 # TO-DO LIST
 
-* Come up with a plan, write down all the rules, and distribute tasks (Miloš) DONE
-* Implement all cities and connections between them (Mihajlo) DONE
-* Implement the stage of placing the main cities at the beginning (Mihajlo) DONE
-* Implement graphical representation of free, conquered, and capital territory (Stepan) DONE
-* Implement the stage of choosing free territories (Stepan) DONE
-* Implement the warfare stage (Stepan) DONE
-* Implement graphical representation of a player's attack on a territory, such as placing the player's flag on that territory as a declaration of attack (Stepan) DONE
-* Implement choosing the number of moves in the warfare phase at the beginning, i.e., the number of moves after which the game will default to ending (Stepan) DONE
-* Implement a system, whether external or internal, to keep track of the number of successful defenses of a player's territory (Stepan) DONE
-* Implement sudden death round in case of a tie by all parameters (Stepan) CANCELED
-* Implement a question database so that questions are not repeated during the game (Miloš) DONE
-* Tie questions to UI, randomly display answers to questions (Miloš) DONE
-* Tidy up the window and the overall look of the game (Stepan) DONE
-* Decide on adding a minimalist AI player or focusing on multiplayer and implement the chosen option (Stepan) DONE
-* Conduct code review, find better solutions for inefficient parts, and generally improve the project (Mihajlo) ACCOMPLISHED
-* Test the game, find bugs, and fix them (All) IN PROGRESS
+* Come up with a plan, write down all the rules, and distribute tasks (Miloš) #DONE
+* Implement all cities and connections between them (Mihajlo) #DONE
+* Implement the stage of placing the main cities at the beginning (Mihajlo) #DONE
+* Implement graphical representation of free, conquered, and capital territory (Stepan) #DONE
+* Implement the stage of choosing free territories (Stepan) #DONE
+* Implement the warfare stage (Stepan) #DONE
+* Implement graphical representation of a player's attack on a territory, such as placing the player's flag on that territory as a declaration of attack (Stepan) #DONE
+* Implement choosing the number of moves in the warfare phase at the beginning, i.e., the number of moves after which the game will default to ending (Stepan) #DONE
+* Implement a system, whether external or internal, to keep track of the number of successful defenses of a player's territory (Stepan) #DONE
+* Implement sudden death round in case of a tie by all parameters (Stepan) #CANCELED
+* Implement a question database so that questions are not repeated during the game (Miloš) #DONE
+* Tie questions to UI, randomly display answers to questions (Miloš) #DONE
+* Tidy up the window and the overall look of the game (Stepan) #DONE
+* Decide on adding a minimalist AI player or focusing on multiplayer and implement the chosen option (Stepan) #DONE
+* Conduct code review, find better solutions for inefficient parts, and generally improve the project (Mihajlo) #DONE
+* Test the game, find bugs, and fix them (All)
 
 If you want to take on something from this list, write your name next to the item you want to work on. After completing that task, put #DONE next to it if you're satisfied with the processing.
